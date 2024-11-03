@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap gap-2 px-9 pt-4">
+  <div class="flex flex-wrap justify-center gap-2 px-9 pt-4 text-center">
     <a
       v-for="tag in tags"
       :key="tag"
