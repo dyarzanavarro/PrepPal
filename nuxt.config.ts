@@ -22,7 +22,7 @@ export default defineNuxtConfig({
       }
     }
   },
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   ssr: false,
   modules: [
     '@vesp/nuxt-fontawesome',
@@ -40,7 +40,7 @@ export default defineNuxtConfig({
   fontawesome: {
     component: 'font-awesome-icon', // Ensure the component name is set correctly
     icons: {
-      solid: ['faBars', 'faTimes'],
+      solid: ['faBars', 'faTimes', 'faSearch', 'faShoppingCart', 'faUser', 'faHeart', 'faStar', 'faArrowRight', 'faArrowLeft', 'faArrowUp', 'faArrowDown'],
       brands: ['faFacebook', 'faTwitter', 'faInstagram', 'faYoutube', 'faPinterest', 'faLinkedin', 'faTwitch', 'faGithub', 'faGoogle'],
     },
   },

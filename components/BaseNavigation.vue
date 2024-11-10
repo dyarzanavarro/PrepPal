@@ -37,6 +37,9 @@ const toggleNav = () => {
           <li class="hover:text-green-900">
             <nuxt-link to="/mealprep">Meal Prep</nuxt-link>
           </li>
+          <li class="hover:text-green-900">
+            <nuxt-link to="/shopping">Shopping</nuxt-link>
+          </li>
         </ul>
       </nav>
 
@@ -44,7 +47,7 @@ const toggleNav = () => {
       <transition name="slide">
         <div
           v-if="isNavOpen"
-          class="lg:hidden fixed inset-0 bg-white flex flex-col justify-center items-center text-center z-50"
+          class="lg:hidden fixed inset-0 flex flex-col justify-center items-center text-center z-50"
         >
           <!-- Close Button -->
           <button
@@ -68,6 +71,11 @@ const toggleNav = () => {
             <li>
               <nuxt-link to="/mealprep" @click="isNavOpen = false"
                 >Meal Prep</nuxt-link
+              >
+            </li>
+            <li>
+              <nuxt-link to="/shopping" @click="isNavOpen = false"
+                >Shopping</nuxt-link
               >
             </li>
           </ul>

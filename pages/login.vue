@@ -13,7 +13,7 @@ function loginWithGoogle() {
 </script>
 
 <template>
-  <div class="bg-gray-100 flex justify-center items-center h-screen">
+  <div class="flex justify-center items-center h-screen">
     <!-- Left: Image -->
     <div class="w-1/2 h-screen hidden lg:block">
       <img
@@ -63,12 +63,7 @@ function loginWithGoogle() {
           <a href="#" class="hover:underline">Forgot Password?</a>
         </div>
         <!-- Login Button -->
-        <button
-          type="submit"
-          class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4 w-full"
-        >
-          Login
-        </button>
+
         <div class="py-6">
           <button
             @click="loginWithGoogle"
@@ -76,7 +71,10 @@ function loginWithGoogle() {
             class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4 w-full"
           >
             Login in with
-            <font-awesome-icon icon="fa-brands fa-google" />
+            <font-awesome-icon
+              icon="fa-brands fa-google"
+              class="bg-transparent"
+            />
           </button>
         </div>
       </form>
