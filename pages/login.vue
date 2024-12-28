@@ -1,14 +1,52 @@
 <script setup lang="ts">
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { useFirebaseAuth } from "vuefire";
 
 const auth = useFirebaseAuth()!;
+const email = ref("");
+const password = ref("");
+const router = useRouter();
+
 function loginWithGoogle() {
   if (auth) {
-    signInWithPopup(auth, new GoogleAuthProvider());
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .then(() => {
+        router.push("/");
+      })
+      .catch((error) => {
+        console.error("Google sign-in error:", error);
+      });
   } else {
     console.error("Auth is null");
   }
+}
+
+function signUp() {
+  createUserWithEmailAndPassword(auth, email.value, password.value)
+    .then((userCredential) => {
+      console.log("User signed up:", userCredential.user);
+    })
+    .catch((error) => {
+      console.error("Sign-up error:", error);
+    });
+}
+
+function login() {
+  signInWithEmailAndPassword(auth, email.value, password.value)
+    .then((userCredential) => {
+      console.log("User logged in:", userCredential.user);
+    })
+    .catch((error) => {
+      console.error("Login error:", error);
+    });
 }
 </script>
 
@@ -24,15 +62,28 @@ function loginWithGoogle() {
     </div>
     <!-- Right: Login Form -->
     <div class="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
-      <h1 class="text-2xl font-semibold mb-4">Login</h1>
-      <form action="#" method="POST">
+      <h1 class="text-2xl font-semibold mb-4">
+        {{ isLogin ? "Login" : "Sign Up" }}
+      </h1>
+      <form @submit.prevent="isLogin ? login : signUp">
         <!-- Username Input -->
         <div class="mb-4">
-          <label for="username" class="block text-gray-600">Username</label>
+          <label for="username" class="block text-gray-600">Email</label>
           <input
-            type="text"
-            id="username"
-            name="username"
+            v-if="isLogin"
+            v-model="loginEmail"
+            type="email"
+            placeholder="Email"
+            required
+            class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
+            autocomplete="off"
+          />
+          <input
+            v-else
+            v-model="signUpEmail"
+            type="email"
+            placeholder="Email"
+            required
             class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
             autocomplete="off"
           />
@@ -41,27 +92,36 @@ function loginWithGoogle() {
         <div class="mb-4">
           <label for="password" class="block text-gray-600">Password</label>
           <input
+            v-if="isLogin"
+            v-model="loginPassword"
             type="password"
-            id="password"
-            name="password"
+            placeholder="Password"
+            required
+            class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
+            autocomplete="off"
+          />
+          <input
+            v-else
+            v-model="signUpPassword"
+            type="password"
+            placeholder="Password"
+            required
             class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
             autocomplete="off"
           />
         </div>
-        <!-- Remember Me Checkbox -->
-        <div class="mb-4 flex items-center">
-          <input
-            type="checkbox"
-            id="remember"
-            name="remember"
-            class="text-green-600"
-          />
-          <label for="remember" class="text-gray-600 ml-2">Remember Me</label>
-        </div>
+
         <!-- Forgot Password Link -->
         <div class="mb-6 text-green-600">
           <a href="#" class="hover:underline">Forgot Password?</a>
         </div>
+        <button
+          class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4"
+          type="submit"
+        >
+          {{ isLogin ? "Login" : "Sign Up" }}
+        </button>
+
         <!-- Login Button -->
 
         <div class="py-6">
@@ -78,10 +138,14 @@ function loginWithGoogle() {
           </button>
         </div>
       </form>
-      <!-- Sign up  Link -->
-      <div class="mt-6 text-green-600 text-center">
-        <a href="#" class="hover:underline">Sign up Here</a>
-      </div>
+
+      <button @click="toggleForm" class="mt-4">
+        {{
+          isLogin
+            ? "Don't have an account? Sign Up"
+            : "Already have an account? Login"
+        }}
+      </button>
     </div>
   </div>
 </template>

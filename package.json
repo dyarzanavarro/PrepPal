@@ -10,11 +10,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@auth/core": "^0.17.0",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/tailwindcss": "^6.12.2",
     "@vesp/nuxt-fontawesome": "^1.1.0",
     "firebase": "^10.14.1",
-    "nuxt": "^3.13.2",
+    "nuxt": "^3.15.0",
     "nuxt-vuefire": "^1.0.4",
     "vue": "latest",
     "vue-router": "latest"

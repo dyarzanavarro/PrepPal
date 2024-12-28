@@ -10,6 +10,7 @@ export default defineNuxtConfig({
   },
   pages: true,
 
+
   experimental: {
     sharedPrerenderData: false,
     compileTemplate: true,
@@ -63,4 +64,3 @@ export default defineNuxtConfig({
 
 
 });
-

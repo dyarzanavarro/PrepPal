@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useFirebaseAuth } from "vuefire";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-const isNavOpen = ref(false);
+const auth = getAuth();
+const userPhotoURL = ref<string | null>(null);
 
-const toggleNav = () => {
-  isNavOpen.value = !isNavOpen.value;
-};
+onMounted(() => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userPhotoURL.value = user.photoURL;
+    } else {
+      userPhotoURL.value = null;
+    }
+  });
+});
 </script>
 
 <template>
@@ -40,6 +49,17 @@ const toggleNav = () => {
           <li class="hover:text-green-900">
             <nuxt-link to="/shopping">Shopping</nuxt-link>
           </li>
+
+          <li>
+            <!-- Display user profile image if logged in -->
+            <div v-if="userPhotoURL" class="ml-4">
+              <img
+                :src="userPhotoURL"
+                alt="User img"
+                class="w-10 h-10 rounded-full"
+              />
+            </div>
+          </li>
         </ul>
       </nav>
 
@@ -47,7 +67,7 @@ const toggleNav = () => {
       <transition name="slide">
         <div
           v-if="isNavOpen"
-          class="lg:hidden fixed inset-0 flex flex-col justify-center items-center text-center z-50"
+          class="lg:hidden fixed inset-0 flex flex-col justify-center items-center text-center z-50 bg-slate-50"
         >
           <!-- Close Button -->
           <button
@@ -79,6 +99,16 @@ const toggleNav = () => {
               >
             </li>
           </ul>
+          <div class="flex items-center">
+            <!-- Display user profile image if logged in -->
+            <div v-if="userPhotoURL" class="ml-4">
+              <img
+                :src="userPhotoURL"
+                alt="User Profile"
+                class="w-10 h-10 rounded-full"
+              />
+            </div>
+          </div>
         </div>
       </transition>
     </header>
