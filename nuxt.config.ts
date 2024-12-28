@@ -1,6 +1,5 @@
 import { getDoc } from 'firebase/firestore'
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
   compatibilityDate: "2024-10-20",
@@ -61,6 +60,17 @@ export default defineNuxtConfig({
 
     }
   },
+  hooks: {
+    'pages:extend'(pages) {
+      pages.forEach((page) => {
+        const pageWithMiddleware = page as typeof page & { middleware?: string[] };
 
+        if (page.path !== '/login') {
+          pageWithMiddleware.middleware = pageWithMiddleware.middleware || [];
+          pageWithMiddleware.middleware.push('auth');
+        }
+      });
+    },
+  },
 
 });

@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { useFirebaseAuth } from "vuefire";
 
@@ -46,6 +47,16 @@ function login() {
     })
     .catch((error) => {
       console.error("Login error:", error);
+    });
+}
+
+function logout() {
+  signOut(auth)
+    .then(() => {
+      router.push("/login");
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
     });
 }
 </script>
@@ -146,6 +157,9 @@ function login() {
             : "Already have an account? Login"
         }}
       </button>
+      <div class="container">
+        <button @click="logout" class="mt-4">Logout</button>
+      </div>
     </div>
   </div>
 </template>

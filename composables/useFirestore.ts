@@ -1,4 +1,4 @@
-// composables/useFirestore.ts
+/* // composables/useFirestore.ts
 import { addDoc, collection, getFirestore, doc, getDoc } from "firebase/firestore";
 import { ref } from "vue";
 
@@ -43,3 +43,4 @@ export const useFirestore = () => {
 
     return { addRecipe, getRecipeBySlug };
 };
+ */

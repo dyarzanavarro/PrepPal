@@ -5,6 +5,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const auth = getAuth();
 const userPhotoURL = ref<string | null>(null);
+const isMobileMenuOpen = ref(false);
 
 onMounted(() => {
   onAuthStateChanged(auth, (user) => {
@@ -15,6 +16,10 @@ onMounted(() => {
     }
   });
 });
+
+function toggleMobileMenu() {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+}
 </script>
 
 <template>
@@ -28,7 +33,7 @@ onMounted(() => {
         <!-- Hamburger Icon for Mobile -->
         <button
           class="ml-auto lg:hidden text-2xl text-green-600 top-6 right-4"
-          @click="toggleNav"
+          @click="toggleMobileMenu"
           aria-label="Toggle Navigation"
         >
           <font-awesome-icon :icon="isNavOpen ? 'fa-times' : 'fa-bars'" />
@@ -66,13 +71,13 @@ onMounted(() => {
       <!-- Mobile Navigation Panel -->
       <transition name="slide">
         <div
-          v-if="isNavOpen"
+          v-if="isMobileMenuOpen"
           class="lg:hidden fixed inset-0 flex flex-col justify-center items-center text-center z-50 bg-slate-50"
         >
           <!-- Close Button -->
           <button
             class="absolute top-6 right-4 text-3xl text-green-600"
-            @click="isNavOpen = false"
+            @click="isMobileMenuOpen = false"
             aria-label="Close Navigation"
           >
             <font-awesome-icon icon="fa-times" />
@@ -81,34 +86,38 @@ onMounted(() => {
             class="flex flex-col items-center gap-6 text-6xl font-bold capitalize text-green-600"
           >
             <li>
-              <nuxt-link to="/" @click="isNavOpen = false">Home</nuxt-link>
+              <nuxt-link to="/" @click="isMobileMenuOpen = false"
+                >Home</nuxt-link
+              >
             </li>
             <li>
-              <nuxt-link to="/recipes" @click="isNavOpen = false"
+              <nuxt-link to="/recipes" @click="isMobileMenuOpen = false"
                 >Recipes</nuxt-link
               >
             </li>
             <li>
-              <nuxt-link to="/mealprep" @click="isNavOpen = false"
+              <nuxt-link to="/mealprep" @click="isMobileMenuOpen = false"
                 >Meal Prep</nuxt-link
               >
             </li>
             <li>
-              <nuxt-link to="/shopping" @click="isNavOpen = false"
+              <nuxt-link to="/shopping" @click="isMobileMenuOpen = false"
                 >Shopping</nuxt-link
               >
             </li>
+            <li>
+              <div class="flex items-center">
+                <!-- Display user profile image if logged in -->
+                <div v-if="userPhotoURL" class="ml-4">
+                  <img
+                    :src="userPhotoURL"
+                    alt="User Profile"
+                    class="w-10 h-10 rounded-full"
+                  />
+                </div>
+              </div>
+            </li>
           </ul>
-          <div class="flex items-center">
-            <!-- Display user profile image if logged in -->
-            <div v-if="userPhotoURL" class="ml-4">
-              <img
-                :src="userPhotoURL"
-                alt="User Profile"
-                class="w-10 h-10 rounded-full"
-              />
-            </div>
-          </div>
         </div>
       </transition>
     </header>
