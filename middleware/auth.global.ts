@@ -6,8 +6,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     console.log('Middleware executed', { user, path: to.path });
 
-    if (!user && to.path !== '/login') {
-        console.log('Redirecting to login');
+    if (!user && to.path !== '/login' && to.path !== '/welcome') {
         return navigateTo('/login');
     }
 });

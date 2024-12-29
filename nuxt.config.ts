@@ -62,13 +62,11 @@ export default defineNuxtConfig({
   },
   hooks: {
     'pages:extend'(pages) {
-      pages.forEach((page) => {
-        const pageWithMiddleware = page as typeof page & { middleware?: string[] };
-
-        if (page.path !== '/login') {
-          pageWithMiddleware.middleware = pageWithMiddleware.middleware || [];
-          pageWithMiddleware.middleware.push('auth');
-        }
+      // Add a redirect from `/` to `/welcome`
+      pages.push({
+        name: 'root',
+        path: '/',
+        redirect: '/welcome',
       });
     },
   },

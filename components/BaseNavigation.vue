@@ -49,7 +49,7 @@ function toggleMobileMenu() {
             >
           </li>
           <li class="hover:text-green-900">
-            <nuxt-link to="/mealprep">Meal Prep</nuxt-link>
+            <nuxt-link to="/mealprep">Meal Plan</nuxt-link>
           </li>
           <li class="hover:text-green-900">
             <nuxt-link to="/shopping">Shopping</nuxt-link>
@@ -97,7 +97,7 @@ function toggleMobileMenu() {
             </li>
             <li>
               <nuxt-link to="/mealprep" @click="isMobileMenuOpen = false"
-                >Meal Prep</nuxt-link
+                >Meal Plan</nuxt-link
               >
             </li>
             <li>
