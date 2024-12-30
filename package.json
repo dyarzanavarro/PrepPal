@@ -18,6 +18,7 @@
     "nuxt": "^3.15.0",
     "nuxt-vuefire": "^1.0.4",
     "vue": "latest",
+    "vue-draggable-resizable": "^3.0.0",
     "vue-router": "latest"
   },
   "devDependencies": {
