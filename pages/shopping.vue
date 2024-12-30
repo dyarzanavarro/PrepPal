@@ -1,5 +1,5 @@
 <template>
-  <div class="p-10 mx-auto text-center flex flex-col max-w-lg">
+  <div class="pt-10 mx-auto text-center flex flex-col max-w-lg">
     <h1 class="text-3xl font-bold mb-6">Shopping List</h1>
 
     <!-- Add New Shopping Item -->
@@ -18,15 +18,18 @@
       </button>
     </div>
 
-    <div class="pb-6">
+    <div class="pb-10">
       <!-- Uncategorized Items -->
-      <div class="p-4 bg-gray-100 rounded-lg shadow">
+      <div
+        class="p-4 bg-gray-100 rounded-lg shadow"
+        @dragenter="onDragEnter(null)"
+        @dragleave="onDragLeave(null)"
+        @dragover.prevent
+        @drop="onDrop(null)"
+        :class="highlightedCategory === null ? 'bg-blue-200' : ''"
+      >
         <h2 class="text-xl font-bold mb-2">Uncategorized</h2>
-        <div
-          class="min-h-[4rem] bg-gray-200 rounded-lg p-4 space-y-2"
-          @dragover.prevent
-          @drop="onDrop(null)"
-        >
+        <div class="min-h-[4rem] bg-gray-200 rounded-lg p-4 space-y-2">
           <div
             v-for="item in shoppingListByCategory['Uncategorized']"
             :key="item.id"
@@ -51,15 +54,16 @@
         v-for="category in categories"
         :key="category"
         class="p-4 bg-gray-100 rounded-lg shadow"
+        @dragenter="onDragEnter(category)"
+        @dragleave="onDragLeave(category)"
+        @dragover.prevent
+        @drop="onDrop(category)"
+        :class="highlightedCategory === category ? 'bg-blue-200' : ''"
       >
         <h2 class="text-xl font-bold mb-2">{{ category }}</h2>
 
         <!-- Droppable Area for the Category -->
-        <div
-          class="min-h-[4rem] bg-gray-200 rounded-lg p-4 space-y-2"
-          @dragover.prevent
-          @drop="onDrop(category)"
-        >
+        <div class="min-h-[4rem] bg-gray-200 rounded-lg p-4 space-y-2">
           <div
             v-for="item in shoppingListByCategory[category]"
             :key="item.id"
@@ -97,6 +101,7 @@ const shoppingList = useCollection(collection(firestore, "shoppingList"));
 
 const newShoppingItem = ref("");
 const draggedItem = ref(null);
+const highlightedCategory = ref(null); // Tracks the currently highlighted category
 
 // Hardcoded categories
 const categories = [
@@ -156,6 +161,16 @@ const onDragStart = (item) => {
   draggedItem.value = item;
 };
 
+const onDragEnter = (category) => {
+  highlightedCategory.value = category;
+};
+
+const onDragLeave = (category) => {
+  if (highlightedCategory.value === category) {
+    highlightedCategory.value = null;
+  }
+};
+
 const onDrop = async (category) => {
   if (!draggedItem.value) return;
 
@@ -165,14 +180,6 @@ const onDrop = async (category) => {
   });
 
   draggedItem.value = null;
+  highlightedCategory.value = null; // Clear highlight after dropping
 };
 </script>
-
-
-
-<style scoped>
-/* Import required styles for vue-draggable-resizable */
-/* @import "vue-draggable-resizable/dist/VueDraggableResizable.css";
-
-/* Optional custom styles */
-</style>
