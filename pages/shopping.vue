@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-10 mx-auto text-center flex flex-col max-w-lg">
+  <div class="p-10 mx-auto text-center flex flex-col max-w-lg">
     <h1 class="text-3xl font-bold mb-6">Shopping List</h1>
 
     <!-- Add New Shopping Item -->
