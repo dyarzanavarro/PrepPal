@@ -123,12 +123,22 @@
       v-if="isModalOpen"
       class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
     >
-      <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <div
+        class="bg-white p-6 rounded-lg shadow-lg max-w-md overflow-y-auto w-full h-[80vh]"
+      >
         <h3 class="text-xl font-bold mb-4 text-gray-700">Select a Recipe</h3>
 
-        <ul v-if="recipes.length > 0" class="space-y-4">
+        <!-- Search Input -->
+        <input
+          v-model="searchTerm"
+          placeholder="Search for a recipe"
+          class="w-full p-2 border border-gray-300 rounded mb-4"
+        />
+
+        <!-- Recipe List -->
+        <ul v-if="filteredRecipes.length > 0" class="space-y-4">
           <li
-            v-for="recipe in recipes"
+            v-for="recipe in filteredRecipes"
             :key="recipe.id"
             @click="selectRecipe(recipe)"
             class="flex items-center gap-4 p-4 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
@@ -142,8 +152,7 @@
           </li>
         </ul>
 
-        <p v-else class="text-gray-500">No recipes available.</p>
-
+        <p v-else class="text-gray-500">No recipes match your search.</p>
         <button
           @click="closeModal"
           class="mt-6 text-black hover:underline text-sm"
@@ -257,11 +266,6 @@ const saveMealPlan = async (
       ...mealPlan.value[formattedDate],
       [slot]: recipe,
     };
-
-    console.log(
-      `Updated mealPlan for ${formattedDate}:`,
-      mealPlan.value[formattedDate]
-    );
   } catch (error) {
     console.error("Error saving meal plan:", error);
   }
@@ -361,6 +365,19 @@ const selectRecipe = async (recipe) => {
   closeModal();
 };
 
+// Search term bound to the input field
+const searchTerm = ref("");
+
+// Ensure `recipes` is reactive and contains your recipe data
+// Computed property to dynamically filter recipes based on the search term
+const filteredRecipes = computed(() => {
+  if (!searchTerm.value) return recipes.value;
+
+  // Filter recipes by search term
+  return recipes.value.filter((recipe) =>
+    recipe.title.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
 // Initialize data on mount
 onMounted(async () => {
   const today = new Date();
