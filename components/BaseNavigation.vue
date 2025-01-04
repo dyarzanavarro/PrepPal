@@ -56,14 +56,16 @@ function toggleMobileMenu() {
           </li>
 
           <li>
-            <!-- Display user profile image if logged in -->
-            <div v-if="userPhotoURL" class="ml-4">
-              <img
-                :src="userPhotoURL"
-                alt="User img"
-                class="w-10 h-10 rounded-full"
-              />
-            </div>
+            <nuxt-link to="/login">
+              <!-- Display user profile image if logged in -->
+              <div v-if="userPhotoURL" class="ml-4">
+                <img
+                  :src="userPhotoURL"
+                  alt="User img"
+                  class="w-10 h-10 rounded-full"
+                />
+              </div>
+            </nuxt-link>
           </li>
         </ul>
       </nav>

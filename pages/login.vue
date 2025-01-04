@@ -1,66 +1,3 @@
-<script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
-import { useFirebaseAuth } from "vuefire";
-
-const auth = useFirebaseAuth()!;
-const email = ref("");
-const password = ref("");
-const router = useRouter();
-
-function loginWithGoogle() {
-  if (auth) {
-    signInWithPopup(auth, new GoogleAuthProvider())
-      .then(() => {
-        router.push("/");
-      })
-      .catch((error) => {
-        console.error("Google sign-in error:", error);
-      });
-  } else {
-    console.error("Auth is null");
-  }
-}
-
-function signUp() {
-  createUserWithEmailAndPassword(auth, email.value, password.value)
-    .then((userCredential) => {
-      console.log("User signed up:", userCredential.user);
-    })
-    .catch((error) => {
-      console.error("Sign-up error:", error);
-    });
-}
-
-function login() {
-  signInWithEmailAndPassword(auth, email.value, password.value)
-    .then((userCredential) => {
-      console.log("User logged in:", userCredential.user);
-    })
-    .catch((error) => {
-      console.error("Login error:", error);
-    });
-}
-
-function logout() {
-  signOut(auth)
-    .then(() => {
-      router.push("/login");
-    })
-    .catch((error) => {
-      console.error("Logout error:", error);
-    });
-}
-</script>
-
 <template>
   <div class="flex justify-center items-center h-screen">
     <!-- Left: Image -->
@@ -72,7 +9,7 @@ function logout() {
       />
     </div>
     <!-- Right: Login Form -->
-    <div class="lg:p-36 md:p-52 sm:20 p-8 w-full lg:w-1/2">
+    <div class="lg:p-24 md:p-24 sm:20 p-8 w-full lg:w-1/2">
       <h1 class="text-2xl font-semibold mb-4">
         {{ isLogin ? "Login" : "Sign Up" }}
       </h1>
@@ -164,3 +101,65 @@ function logout() {
   </div>
 </template>
 
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+import { useFirebaseAuth } from "vuefire";
+
+const auth = useFirebaseAuth()!;
+const email = ref("");
+const password = ref("");
+const router = useRouter();
+
+function loginWithGoogle() {
+  if (auth) {
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .then(() => {
+        router.push("/");
+      })
+      .catch((error) => {
+        console.error("Google sign-in error:", error);
+      });
+  } else {
+    console.error("Auth is null");
+  }
+}
+
+function signUp() {
+  createUserWithEmailAndPassword(auth, email.value, password.value)
+    .then((userCredential) => {
+      console.log("User signed up:", userCredential.user);
+    })
+    .catch((error) => {
+      console.error("Sign-up error:", error);
+    });
+}
+
+function login() {
+  signInWithEmailAndPassword(auth, email.value, password.value)
+    .then((userCredential) => {
+      console.log("User logged in:", userCredential.user);
+    })
+    .catch((error) => {
+      console.error("Login error:", error);
+    });
+}
+
+function logout() {
+  signOut(auth)
+    .then(() => {
+      router.push("/login");
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
+    });
+}
+</script>

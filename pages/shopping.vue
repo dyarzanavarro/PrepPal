@@ -94,14 +94,34 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  query,
+  where,
 } from "firebase/firestore";
+import { useFirebaseAuth } from "vuefire";
 
 const firestore = useFirestore();
-const shoppingList = useCollection(collection(firestore, "shoppingList"));
+const auth = useFirebaseAuth();
 
+// Ensure authenticated user
+const userId = computed(() => auth.currentUser?.uid);
+if (!userId.value) {
+  console.error("User not logged in");
+}
+
+// User-specific shopping list collection
+const shoppingListCollection = computed(() =>
+  collection(firestore, `users/${userId.value}/shoppingList`)
+);
+
+// Fetch the user's shopping list
+const shoppingList = useCollection(
+  query(shoppingListCollection.value, where("userId", "==", userId.value))
+);
+
+// Reactive variables for managing state
 const newShoppingItem = ref("");
 const draggedItem = ref(null);
-const highlightedCategory = ref(null); // Tracks the currently highlighted category
+const highlightedCategory = ref(null);
 
 // Hardcoded categories
 const categories = [
@@ -120,10 +140,11 @@ const categories = [
 // Add a new shopping list item
 const addShoppingItem = async () => {
   if (newShoppingItem.value.trim()) {
-    await addDoc(collection(firestore, "shoppingList"), {
+    await addDoc(shoppingListCollection.value, {
       title: newShoppingItem.value.trim(),
       completed: false,
       category: null, // Start as uncategorized
+      userId: userId.value, // Associate with the logged-in user
     });
     newShoppingItem.value = "";
   }
@@ -131,7 +152,7 @@ const addShoppingItem = async () => {
 
 // Delete a shopping list item
 const deleteShoppingItem = async (id) => {
-  await deleteDoc(doc(firestore, "shoppingList", id));
+  await deleteDoc(doc(shoppingListCollection.value, id));
 };
 
 // Group shopping list items by category
@@ -175,7 +196,7 @@ const onDrop = async (category) => {
   if (!draggedItem.value) return;
 
   // Update the category in Firestore
-  await updateDoc(doc(firestore, "shoppingList", draggedItem.value.id), {
+  await updateDoc(doc(shoppingListCollection.value, draggedItem.value.id), {
     category,
   });
 

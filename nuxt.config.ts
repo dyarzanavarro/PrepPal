@@ -66,7 +66,7 @@ export default defineNuxtConfig({
       pages.push({
         name: 'root',
         path: '/',
-        redirect: '/welcome',
+        redirect: '/',
       });
     },
   },

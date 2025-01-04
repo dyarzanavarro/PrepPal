@@ -170,69 +170,66 @@ import { ref, onMounted, computed } from "vue";
 import {
   getDocs,
   collection,
-  getFirestore,
   doc,
   setDoc,
   getDoc,
   deleteField,
+  getFirestore,
+  query,
+  where,
 } from "firebase/firestore";
+import { useFirebaseAuth } from "vuefire";
 
 const db = getFirestore();
+const auth = useFirebaseAuth();
+
 const recipes = ref<any[]>([]); // Store all recipes
 const mealPlan = ref<Record<string, { lunch?: any; dinner?: any }>>({});
 const selectedDay = ref<{ date: string } | null>(null);
 const calendarAttributes = ref([]);
 const isModalOpen = ref(false);
 const selectedSlot = ref<"lunch" | "dinner" | null>(null);
+const searchTerm = ref("");
 
-// Utility function to ensure proper date formatting
+// Ensure authenticated user
+const userId = computed(() => auth.currentUser?.uid);
+if (!userId.value) {
+  console.error("User not logged in");
+}
+
+// Format date to Firestore format
 const formatToFirestoreDate = (date: string | Date): string => {
-  let parsedDate;
-
-  if (typeof date === "string") {
-    // Handle DD-MM-YYYY or YYYY-MM-DD formats
-    if (/\d{2}-\d{2}-\d{4}/.test(date)) {
-      const [day, month, year] = date.split("-");
-      parsedDate = new Date(`${year}-${month}-${day}`);
-    } else {
-      parsedDate = new Date(date);
-    }
-  } else if (date instanceof Date) {
-    parsedDate = date;
-  } else {
-    throw new RangeError(
-      "Invalid date format: Date must be a string or Date object."
-    );
-  }
-
-  if (isNaN(parsedDate.getTime())) {
-    throw new RangeError(`Invalid date: Unable to parse ${date}`);
-  }
-
-  return parsedDate.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+  const localDate = typeof date === "string" ? new Date(date) : date;
+  return localDate.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
 };
 
-// Fetch all recipes from Firestore
+// Fetch user-specific recipes
 const fetchRecipes = async () => {
+  if (!userId.value) return;
+
   try {
-    const recipesCollection = collection(db, "recipes");
-    const recipeDocs = await getDocs(recipesCollection);
+    const userRecipesCollection = collection(
+      db,
+      `users/${userId.value}/recipes`
+    );
+    const recipeDocs = await getDocs(userRecipesCollection);
 
     recipes.value = recipeDocs.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-
-    console.log("Fetched recipes:", recipes.value);
+    console.log("Fetched user-specific recipes:", recipes.value);
   } catch (error) {
     console.error("Error fetching recipes:", error);
   }
 };
 
-// Fetch the meal plan for a specific date
+// Fetch meal plans for the selected date
 const fetchMealPlanByDate = async (date: string | Date) => {
-  const formattedDate = formatToFirestoreDate(date); // Format date consistently
-  const mealPlanDoc = doc(db, "mealPlans", formattedDate);
+  if (!userId.value) return;
+
+  const formattedDate = formatToFirestoreDate(date);
+  const mealPlanDoc = doc(db, `users/${userId.value}/mealPlans`, formattedDate);
 
   try {
     const docSnapshot = await getDoc(mealPlanDoc);
@@ -240,54 +237,52 @@ const fetchMealPlanByDate = async (date: string | Date) => {
       ? docSnapshot.data()
       : {};
   } catch (error) {
-    console.error("Error fetching meal plan by date:", error);
+    console.error("Error fetching meal plan:", error);
   }
 };
 
-// Save a recipe to the meal plan for a specific slot and date
+// Save a meal to the user's meal plan
 const saveMealPlan = async (
   date: string | Date,
   slot: "lunch" | "dinner",
   recipe: any
 ) => {
-  const formattedDate = formatToFirestoreDate(date); // Format date correctly
-  const mealPlanDoc = doc(db, "mealPlans", formattedDate);
+  if (!userId.value) return;
+
+  const formattedDate = formatToFirestoreDate(date);
+  const mealPlanDoc = doc(db, `users/${userId.value}/mealPlans`, formattedDate);
 
   try {
-    // Save to Firestore
     await setDoc(mealPlanDoc, { [slot]: recipe }, { merge: true });
 
-    // Ensure reactivity in the local meal plan
     if (!mealPlan.value[formattedDate]) {
       mealPlan.value[formattedDate] = {};
     }
-    // Use Vue's `Object.assign` or spread to trigger reactivity
     mealPlan.value[formattedDate] = {
       ...mealPlan.value[formattedDate],
       [slot]: recipe,
     };
+    updateCalendarAttributes();
   } catch (error) {
     console.error("Error saving meal plan:", error);
   }
 };
 
-// Remove a recipe from a specific slot
+// Remove a meal from the user's meal plan
 const removeMeal = async (slot: "lunch" | "dinner") => {
-  if (!selectedDay.value) return;
+  if (!selectedDay.value || !userId.value) return;
 
   const formattedDate = formatToFirestoreDate(selectedDay.value.date);
-  const mealPlanDoc = doc(db, "mealPlans", formattedDate);
+  const mealPlanDoc = doc(db, `users/${userId.value}/mealPlans`, formattedDate);
 
   try {
     await setDoc(mealPlanDoc, { [slot]: deleteField() }, { merge: true });
 
-    // Update the local meal plan
     delete mealPlan.value[formattedDate][slot];
 
     if (Object.keys(mealPlan.value[formattedDate]).length === 0) {
       delete mealPlan.value[formattedDate];
     }
-
     updateCalendarAttributes();
   } catch (error) {
     console.error("Error removing meal:", error);
@@ -296,54 +291,45 @@ const removeMeal = async (slot: "lunch" | "dinner") => {
 
 // Select a day from the calendar
 const selectDay = async ({ date }: { date: string | Date }) => {
-  // Ensure the date is treated as local time
-  const localDate = typeof date === "string" ? new Date(date) : date;
-
-  // Format the local date as YYYY-MM-DD
-  const formattedDate = [
-    localDate.getFullYear(),
-    String(localDate.getMonth() + 1).padStart(2, "0"),
-    String(localDate.getDate()).padStart(2, "0"),
-  ].join("-"); // Ensures YYYY-MM-DD format without timezone shifts
-
-  if (isNaN(localDate.getTime())) {
-    console.error("Invalid date selected:", date);
-    selectedDay.value = null;
-    return;
-  }
-
+  const formattedDate = formatToFirestoreDate(date);
   selectedDay.value = { date: formattedDate };
-  console.log("Selected day (formatted):", selectedDay.value);
-
   await fetchMealPlanByDate(selectedDay.value.date);
 };
 
-// Highlight planned dates in the calendar
+// Update calendar attributes to highlight planned dates
 const updateCalendarAttributes = async () => {
-  const mealPlansCollection = collection(db, "mealPlans");
+  if (!userId.value) return;
+
+  const mealPlansCollection = collection(db, `users/${userId.value}/mealPlans`);
 
   try {
     const mealPlanDocs = await getDocs(mealPlansCollection);
 
-    // Highlight only days with planned meals
     const plannedDates = mealPlanDocs.docs
       .filter((doc) => doc.data().lunch || doc.data().dinner)
       .map((doc) => doc.id);
 
-    // Update calendar attributes for planned dates
     calendarAttributes.value = plannedDates.map((date) => ({
       key: date,
       highlight: true,
-      dates: new Date(date + "T00:00:00"), // Ensure local time without timezone shifts
+      dates: new Date(date),
       class: "bg-green-200 text-green-800 rounded-full",
     }));
-
-    console.log("Updated calendar attributes:", calendarAttributes.value);
   } catch (error) {
     console.error("Error updating calendar attributes:", error);
   }
 };
-// Open the modal to select a recipe
+
+// Filter recipes based on the search term
+const filteredRecipes = computed(() => {
+  if (!searchTerm.value) return recipes.value;
+
+  return recipes.value.filter((recipe) =>
+    recipe.title.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
+
+// Show modal to select a recipe
 const showModal = (slot: "lunch" | "dinner") => {
   selectedSlot.value = slot;
   isModalOpen.value = true;
@@ -355,7 +341,7 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-// Select a recipe from the modal
+// Select a recipe and save it to the meal plan
 const selectRecipe = async (recipe) => {
   if (!selectedDay.value || !selectedSlot.value) return;
 
@@ -365,32 +351,12 @@ const selectRecipe = async (recipe) => {
   closeModal();
 };
 
-// Search term bound to the input field
-const searchTerm = ref("");
-
-// Ensure `recipes` is reactive and contains your recipe data
-// Computed property to dynamically filter recipes based on the search term
-const filteredRecipes = computed(() => {
-  if (!searchTerm.value) return recipes.value;
-
-  // Filter recipes by search term
-  return recipes.value.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchTerm.value.toLowerCase())
-  );
-});
-// Initialize data on mount
+// Fetch data on mounted
 onMounted(async () => {
   const today = new Date();
+  const formattedToday = formatToFirestoreDate(today);
 
-  // Format today's date as YYYY-MM-DD in local Swiss time
-  const swissToday = [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, "0"),
-    String(today.getDate()).padStart(2, "0"),
-  ].join("-");
-
-  console.log("Setting selectedDay to:", swissToday);
-  selectedDay.value = { date: swissToday };
+  selectedDay.value = { date: formattedToday };
 
   await fetchRecipes();
   await fetchMealPlanByDate(selectedDay.value.date);

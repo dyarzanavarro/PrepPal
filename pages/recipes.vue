@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="p-2 text-center">
-      <h2 class="text-xl font-light text-slate-400 px-9 pt-4">Hey, Daniel</h2>
+      <h2 class="text-xl font-light text-slate-400 px-9 pt-4">
+        Hey, {{ userDisplayName }}
+      </h2>
       <h1 class="text-3xl font-bold text-black px-9 pt-2">
         What are we cooking today?
       </h1>
@@ -46,14 +48,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useCollection } from "vuefire";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { ref, computed, onMounted } from "vue";
+import { useFirebaseAuth } from "vuefire";
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  getFirestore,
+} from "firebase/firestore";
 
+// Firebase setup
 const db = getFirestore();
-const recipesCollection = collection(db, "recipes");
-const { data: recipes } = useCollection(recipesCollection);
+const auth = useFirebaseAuth();
 
+// Recipe state
+const recipes = ref([]); // User-specific recipes
 const searchQuery = ref("");
 const filteredRecipes = computed(() => {
   if (!searchQuery.value.trim()) {
@@ -65,22 +76,32 @@ const filteredRecipes = computed(() => {
   );
 });
 
-const searchRecipes = () => {
-  // This function is called on input change, but the actual filtering is done in the computed property
-};
-// Slug generation function
-const generateSlug = (title: string): string => {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9 -]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/ä+/g, "a")
-    .replace(/-+/g, "-")
-    .substring(0, 200); // Optional: limit length of slug
+// Modal state
+const isModalOpen = ref(false);
+
+// Get user's display name for greeting
+const userDisplayName = computed(() => auth.currentUser?.displayName || "User");
+
+// Fetch user-specific recipes
+const fetchUserRecipes = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    const userRecipesCollection = collection(db, `users/${user.uid}/recipes`);
+    const userRecipesSnapshot = await getDocs(userRecipesCollection);
+
+    recipes.value = userRecipesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    console.log("Fetched user recipes:", recipes.value);
+  } catch (error) {
+    console.error("Error fetching user recipes:", error);
+  }
 };
 
-// Function to handle save event from modal
+// Save a recipe
 const onSaveRecipe = async (recipeData: {
   id: string;
   title: string;
@@ -91,31 +112,44 @@ const onSaveRecipe = async (recipeData: {
   image: string;
   description: string;
 }) => {
+  const user = auth.currentUser;
+  if (!user) return;
+
   try {
-    // Generate the slug from the title
-    const slug = generateSlug(recipeData.title);
+    const userRecipesCollection = collection(db, `users/${user.uid}/recipes`);
 
-    // Create a new recipe object including the slug
-    const recipeWithSlug = {
+    // Generate slug
+    const slug = recipeData.title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9 -]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/ä+/g, "a")
+      .replace(/-+/g, "-")
+      .substring(0, 200);
+
+    // Save to Firestore
+    await addDoc(userRecipesCollection, {
       ...recipeData,
-      slug, // Include the slug in the recipe data
-    };
+      slug,
+    });
 
-    // Save the recipe with the slug to Firestore
-    await addDoc(recipesCollection, recipeWithSlug);
     console.log("Recipe added successfully!");
+    fetchUserRecipes(); // Refresh recipes after saving
   } catch (error) {
     console.error("Error adding recipe:", error);
   }
 };
 
-// Modal visibility state
-const isModalOpen = ref(false);
-
-// Method to open the modal
+// Open the modal
 const openModal = () => {
   isModalOpen.value = true;
 };
+
+// Fetch recipes on mount
+onMounted(() => {
+  fetchUserRecipes();
+});
 </script>
 
 <style scoped>
