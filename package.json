@@ -10,10 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@auth/core": "^0.17.0",
+    "@auth/core": "^0.37.4",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/tailwindcss": "^6.12.2",
     "@vesp/nuxt-fontawesome": "^1.1.0",
+    "@vite-pwa/nuxt": "^0.10.6",
     "firebase": "^10.14.1",
     "nuxt": "^3.15.0",
     "nuxt-vuefire": "^1.0.4",
@@ -25,7 +26,9 @@
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@nuxtjs/pwa": "^3.1.2",
     "@samk-dev/nuxt-vcalendar": "^1.0.4",
+    "@vite-pwa/assets-generator": "^0.2.6",
     "nuxt-headlessui": "^1.2.0"
   }
 }

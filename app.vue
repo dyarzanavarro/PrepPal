@@ -12,5 +12,4 @@ provideHeadlessUseId(() => useId());
 </script>
 
 <style>
-
 </style>

@@ -31,6 +31,7 @@ export default defineNuxtConfig({
     'nuxt-vuefire',
     'nuxt-headlessui',
     '@samk-dev/nuxt-vcalendar',
+    '@vite-pwa/nuxt'
   ],
   googleFonts: {
     families: {
