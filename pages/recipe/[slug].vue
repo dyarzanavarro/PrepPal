@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import {
   getFirestore,
   collection,
@@ -8,13 +8,14 @@ import {
   where,
   getDocs,
   updateDoc,
+  deleteDoc,
   doc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const route = useRoute();
 const slug = route.params.slug;
-
+const router = useRouter();
 const db = getFirestore();
 const auth = getAuth();
 
@@ -44,7 +45,8 @@ onMounted(async () => {
       console.log("No such recipe found!");
     }
   } catch (error) {
-    console.error("Error loading recipe:", error);
+    alert("Recipe not found. Redirecting to the recipes list.");
+    router.push("/recipes"); // Redirect to the recipes list
   }
 });
 
@@ -52,31 +54,34 @@ onMounted(async () => {
 const saveChanges = async () => {
   if (recipe.value) {
     try {
+      // Construct the updated recipe object without modifying the slug
+      const updatedRecipe = {
+        title: recipe.value.title || "",
+        image: recipe.value.image || "",
+        description: recipe.value.description || "",
+        ingredients: recipe.value.ingredients || [], // Ensure ingredients is always an array
+        link: recipe.value.link || "",
+        category: recipe.value.category || "",
+        duration: recipe.value.duration || 0,
+        rating: recipe.value.rating || 0,
+      };
+
       const recipeDoc = doc(
         db,
         `users/${userId.value}/recipes`,
         recipe.value.id
       );
 
-      // Ensure `ingredients` is always an array
-      if (!recipe.value.ingredients) {
-        recipe.value.ingredients = [];
-      }
+      console.log("Saving to Firestore:", updatedRecipe);
 
-      // Update Firestore with validated recipe data
-      await updateDoc(recipeDoc, {
-        title: recipe.value.title,
-        image: recipe.value.image,
-        description: recipe.value.description,
-        ingredients: recipe.value.ingredients,
-        link: recipe.value.link,
-      });
-
+      await updateDoc(recipeDoc, updatedRecipe);
       isEditMode.value = false;
       console.log("Recipe updated successfully!");
     } catch (error) {
       console.error("Error updating recipe:", error);
     }
+  } else {
+    console.error("No recipe found to save.");
   }
 };
 
@@ -89,6 +94,25 @@ const addIngredient = () => {
 // Remove an ingredient
 const removeIngredient = (index) => {
   recipe.value.ingredients.splice(index, 1);
+};
+
+const deleteRecipe = async () => {
+  if (confirm("Are you sure you want to delete this recipe?")) {
+    try {
+      const recipeDoc = doc(
+        db,
+        `users/${userId.value}/recipes`,
+        recipe.value.id
+      );
+      await deleteDoc(recipeDoc);
+
+      alert("Recipe deleted successfully!");
+      router.push("/recipes"); // Redirect to the recipes list
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+      alert("Failed to delete the recipe.");
+    }
+  }
 };
 </script>
 
@@ -144,28 +168,38 @@ const removeIngredient = (index) => {
                     class="border border-gray-300 p-2 rounded w-full"
                   />
                 </h1>
-                <button
-                  v-if="!isEditMode"
-                  @click="isEditMode = true"
-                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-4"
-                >
-                  Edit
-                </button>
-                <div v-else class="flex items-center gap-2 ml-4">
+                <div class="flex gap-2">
                   <button
-                    @click="saveChanges"
-                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    v-if="!isEditMode"
+                    @click="isEditMode = true"
+                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 ml-4"
                   >
-                    Save
+                    Edit
                   </button>
+
+                  <div v-else class="flex items-center gap-2 ml-4">
+                    <button
+                      @click="saveChanges"
+                      class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    >
+                      Save
+                    </button>
+                    <button
+                      @click="isEditMode = false"
+                      class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                   <button
-                    @click="isEditMode = false"
-                    class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    @click="deleteRecipe"
+                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                   >
-                    Cancel
+                    Delete
                   </button>
                 </div>
               </div>
+
               <p class="text-sm font-light text-gray-600">
                 {{ recipe.duration }} minutes
               </p>
@@ -251,7 +285,7 @@ const removeIngredient = (index) => {
               <button
                 v-if="isEditMode"
                 @click="addIngredient"
-                class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
               >
                 Add Ingredient
               </button>

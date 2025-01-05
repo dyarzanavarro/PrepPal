@@ -81,7 +81,6 @@ const isModalOpen = ref(false);
 
 // Get user's display name for greeting
 const userDisplayName = computed(() => auth.currentUser?.displayName || "User");
-
 // Fetch user-specific recipes
 const fetchUserRecipes = async () => {
   const user = auth.currentUser;
@@ -95,7 +94,6 @@ const fetchUserRecipes = async () => {
       id: doc.id,
       ...doc.data(),
     }));
-    console.log("Fetched user recipes:", recipes.value);
   } catch (error) {
     console.error("Error fetching user recipes:", error);
   }
@@ -132,7 +130,23 @@ const onSaveRecipe = async (recipeData: {
     await addDoc(userRecipesCollection, {
       ...recipeData,
       slug,
+      description: recipeData.description || "", // Default to an empty string
+      image: recipeData.image || "", // Default to an empty string
     });
+
+    const existingSlugQuery = query(
+      userRecipesCollection,
+      where("slug", "==", slug)
+    );
+    const existingSlugSnapshot = await getDocs(existingSlugQuery);
+
+    if (!existingSlugSnapshot.empty) {
+      console.error("A recipe with the same slug already exists.");
+      alert(
+        "A recipe with the same title already exists. Please choose another title."
+      );
+      return;
+    }
 
     console.log("Recipe added successfully!");
     fetchUserRecipes(); // Refresh recipes after saving
@@ -148,6 +162,10 @@ const openModal = () => {
 
 // Fetch recipes on mount
 onMounted(() => {
+  if (!auth.currentUser) {
+    router.push("/login"); // Redirect if not logged in
+    return;
+  }
   fetchUserRecipes();
 });
 </script>
