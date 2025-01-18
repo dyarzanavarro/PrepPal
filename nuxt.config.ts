@@ -72,4 +72,51 @@ export default defineNuxtConfig({
     },
   },
 
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'PrepPal',
+      short_name: 'PrepPal',
+      description: 'One way to easily store your recipes, mealplan and create a shopping list',
+      theme_color: '#f9fafb',
+      background_color: '#f9fafb',
+      display: 'standalone',
+      icons: [
+        {
+          src: '/icons/android/android-launchericon-192-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: '/icons/android/android-launchericon-512-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
+    },
+    workbox: {
+      runtimeCaching: [
+        {
+          urlPattern: ({ request }) =>
+            request.destination === 'document' || request.destination === 'script',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'html-cache',
+          },
+        },
+        {
+          urlPattern: ({ request }) => request.destination === 'image',
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'image-cache',
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+            },
+          },
+        },
+      ],
+    },
+  },
+
 });
