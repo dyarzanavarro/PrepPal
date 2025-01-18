@@ -113,6 +113,7 @@
           is-expanded
           :attributes="calendarAttributes"
           @dayclick="selectDay"
+          :color="selectedColor"
           class="bg-white rounded-lg shadow-lg hover:shadow-xl transition"
         ></v-calendar>
       </div>
@@ -182,6 +183,8 @@ import { useFirebaseAuth } from "vuefire";
 
 const db = getFirestore();
 const auth = useFirebaseAuth();
+
+const selectedColor = ref("green");
 
 const recipes = ref<any[]>([]); // Store all recipes
 const mealPlan = ref<Record<string, { lunch?: any; dinner?: any }>>({});
@@ -369,21 +372,3 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.v-calendar .bg-blue-200 {
-  background-color: #bfdbfe !important;
-  border-radius: 50%;
-}
-.v-calendar .text-blue-700 {
-  color: green !important;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

@@ -8,11 +8,11 @@
         v-model="newShoppingItem"
         @keyup.enter="addShoppingItem"
         placeholder="New Shopping List item"
-        class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500"
       />
       <button
         @click="addShoppingItem"
-        class="p-2 bg-green-600 text-white rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="p-2 bg-green-600 text-white rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         Add
       </button>
@@ -26,7 +26,7 @@
         @dragleave="onDragLeave(null)"
         @dragover.prevent
         @drop="onDrop(null)"
-        :class="highlightedCategory === null ? 'bg-blue-200' : ''"
+        :class="highlightedCategory === null ? 'bg-green-200' : ''"
       >
         <h2 class="text-xl font-bold mb-2">Uncategorized</h2>
         <div class="min-h-[4rem] bg-gray-200 rounded-lg p-4 space-y-2">
@@ -58,7 +58,7 @@
         @dragleave="onDragLeave(category)"
         @dragover.prevent
         @drop="onDrop(category)"
-        :class="highlightedCategory === category ? 'bg-blue-200' : ''"
+        :class="highlightedCategory === category ? 'bg-green-200' : ''"
       >
         <h2 class="text-xl font-bold mb-2">{{ category }}</h2>
 
