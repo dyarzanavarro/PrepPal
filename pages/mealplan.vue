@@ -200,7 +200,12 @@ if (!userId.value) {
 // Format date to Firestore format
 const formatToFirestoreDate = (date: string | Date): string => {
   const localDate = typeof date === "string" ? new Date(date) : date;
-  return localDate.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, "0"); // Add leading zero
+  const day = String(localDate.getDate()).padStart(2, "0"); // Add leading zero
+
+  return `${year}-${month}-${day}`; // Return local date as YYYY-MM-DD
 };
 
 // Fetch user-specific recipes
