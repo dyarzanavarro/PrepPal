@@ -1,12 +1,5 @@
 <template>
   <div class="p-4 bg-gray-50 min-h-screen">
-    <button
-      v-if="showInstallButton"
-      @click="installApp"
-      class="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg"
-    >
-      Install App
-    </button>
     <!-- Greeting -->
     <h1 class="text-3xl font-bold mb-4">Hello, {{ userDisplayName }}</h1>
     <p class="text-lg text-gray-600 mb-6">What would you like to cook today?</p>
@@ -86,10 +79,6 @@
 
 
 <script setup>
-import { usePwaInstall } from "./composables/usePwaInstall.ts";
-
-const { showInstallButton, installApp } = usePwaInstall();
-
 import { ref, computed, onMounted } from "vue";
 import { useFirebaseAuth } from "vuefire";
 import {

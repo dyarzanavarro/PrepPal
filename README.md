@@ -1,6 +1,6 @@
-# Nuxt Minimal Starter
+# Preppal - Manage your recipes, plan your meals and have a joint shopping list
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+[![Netlify Status](https://api.netlify.com/api/v1/badges/171a6f6f-a4f2-4713-a020-420a239b0ae6/deploy-status)](https://app.netlify.com/sites/preppal-meal-app/deploys)
 
 ## Setup
 

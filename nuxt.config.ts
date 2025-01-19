@@ -74,6 +74,7 @@ export default defineNuxtConfig({
 
   pwa: {
     registerType: 'autoUpdate',
+    registerWebManifestInRouteRules: true,
     manifest: {
       name: 'PrepPal',
       short_name: 'PrepPal',
