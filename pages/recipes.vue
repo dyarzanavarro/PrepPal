@@ -206,6 +206,25 @@ const fetchMealPlans = async () => {
   }
 };
 
+// Open the drawer for planning
+const openDrawer = (recipe) => {
+  selectedRecipe.value = recipe;
+  isDrawerOpen.value = true;
+  calendarDate.value = new Date(); // Reset calendar to today
+};
+
+// Close the drawer
+const closeDrawer = () => {
+  isDrawerOpen.value = false;
+  selectedRecipe.value = null;
+  selectedSlot.value = null;
+};
+
+// Select a day from the calendar
+const selectDay = (day) => {
+  saveRecipeToMealPlan(day.date);
+};
+
 const saveRecipeToMealPlan = async (selectedDate) => {
   const user = auth.currentUser;
   if (!user || !selectedSlot.value || !selectedRecipe.value) {
@@ -237,26 +256,6 @@ const saveRecipeToMealPlan = async (selectedDate) => {
 const openModal = () => {
   isModalOpen.value = true;
 };
-
-// Open the drawer for planning
-const openDrawer = (recipe) => {
-  selectedRecipe.value = recipe;
-  isDrawerOpen.value = true;
-  calendarDate.value = new Date(); // Reset calendar to today
-};
-
-// Close the drawer
-const closeDrawer = () => {
-  isDrawerOpen.value = false;
-  selectedRecipe.value = null;
-  selectedSlot.value = null;
-};
-
-// Select a day from the calendar
-const selectDay = (day) => {
-  saveRecipeToMealPlan(day.date);
-};
-
 // Fetch data on mount
 onMounted(async () => {
   calendarDate.value = new Date(); // Start with today's date

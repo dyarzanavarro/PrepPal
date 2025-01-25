@@ -4,6 +4,7 @@
       <NuxtPwaManifest />
       <base-navigation />
       <NuxtPage />
+      <base-footer />
     </NuxtLayout>
   </div>
 </template>

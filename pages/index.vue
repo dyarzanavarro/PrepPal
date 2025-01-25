@@ -1,11 +1,50 @@
 <template>
-  <div class="p-4 bg-gray-50 min-h-screen">
+  <div class="bg-zinc-50 p-12">
     <!-- Greeting -->
     <h1 class="text-3xl font-bold mb-4">Hello, {{ userDisplayName }}</h1>
     <p class="text-lg text-gray-600 mb-6">What would you like to cook today?</p>
 
+    <!-- Recipes of the Week -->
+    <div>
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-xl font-bold">Recipes of the Week</h2>
+        <button
+          @click="navigateToMealPlan"
+          class="text-green-600 text-lg hover:underline font-semibold"
+        >
+          See all
+        </button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <template v-if="todayMeals.length > 0">
+          <RecipeCard
+            v-for="meal in todayMeals"
+            :key="meal.id"
+            :recipe="meal"
+          />
+        </template>
+        <template v-else>
+          <!-- Placeholder Card -->
+          <div
+            class="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-lg shadow-md"
+          >
+            <p class="text-gray-500 font-semibold text-lg mb-4">
+              No meals planned yet.
+            </p>
+            <button
+              @click="navigateToMealPlan"
+              class="bg-green-200 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4"
+            >
+              Plan Your Meals
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+
     <!-- Search Bar -->
-    <div class="mb-6">
+    <div class="mb-6 mt-8">
+      <h2 class="text-xl font-bold mb-3">Search all recipes</h2>
       <input
         v-model="searchQuery"
         @input="filterRecipes"
@@ -49,26 +88,10 @@
       </div>
     </div>
 
-    <!-- Recipes of the Week -->
-    <div>
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-bold">Recipes of the Week</h2>
-        <button
-          @click="navigateToMealPlan"
-          class="text-green-600 text-lg hover:underline font-semibold"
-        >
-          See all
-        </button>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <RecipeCard v-for="meal in todayMeals" :key="meal.id" :recipe="meal" />
-      </div>
-    </div>
-
     <!-- Action Button -->
     <div class="fixed bottom-4 right-4">
       <button
-        class="bg-green-600 hover:bg-green-700 text-white font-bold text-4xl p-5 rounded-full shadow-lg"
+        class="bg-blue-400 hover:bg-blue-200 text-white font-bold text-3xl p-5 rounded-full shadow-lg"
         @click="onActionClick"
       >
         +

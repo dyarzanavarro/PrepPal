@@ -24,7 +24,7 @@ function toggleMobileMenu() {
 
 <template>
   <div>
-    <header class="border-b">
+    <header class="border-b bg-zinc-50">
       <nav class="flex items-center container mx-auto px-4">
         <nuxt-link class="flex gap-3 items-center py-2" to="/">
           <img src="~/assets/img/bento.png" alt="Bento Logo" width="60" />
@@ -41,17 +41,17 @@ function toggleMobileMenu() {
 
         <!-- Desktop Navigation Links -->
         <ul
-          class="hidden lg:flex gap-6 ml-auto text-3xl font-bold capitalize text-green-600"
+          class="hidden lg:flex gap-6 ml-auto text-3xl font-bold capitalize text-slate-800"
         >
-          <li class="hover:text-green-900">
-            <nuxt-link to="/recipes" class="hover:text-green-900"
+          <li class="hover:text-green-200">
+            <nuxt-link to="/recipes" class="hover:text-green-200"
               >Recipes</nuxt-link
             >
           </li>
-          <li class="hover:text-green-900">
+          <li class="hover:text-green-200">
             <nuxt-link to="/mealplan">Meal Plan</nuxt-link>
           </li>
-          <li class="hover:text-green-900">
+          <li class="hover:text-green-200">
             <nuxt-link to="/shopping">Shopping</nuxt-link>
           </li>
 

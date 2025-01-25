@@ -1,12 +1,12 @@
-/** @type {import('tailwindcss').Config} */
+import colors from 'tailwindcss/colors'
+
 export default {
-  content: [],
-  backgroundColor: theme => ({
-    'primary': '#f7f7f7',
-    'secondary': '#ffed4a',
-    'danger': '#e3342f',
-  }),
+  theme: {
+    extend: {
+      colors: {
+        primary: colors.green
 
-  plugins: [],
+      }
+    }
+  }
 }
-
