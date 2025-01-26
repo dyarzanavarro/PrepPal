@@ -97,7 +97,7 @@
 
         <button
           type="submit"
-          class="w-full text-white py-2 rounded bg-green-600 hover:bg-green-700 transition"
+          class="w-full text-white py-2 rounded bg-green-200 hover:bg-green-700 transition"
         >
           Save Recipe
         </button>
@@ -108,6 +108,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import slugify from "slugify";
 const emit = defineEmits(["close", "save"]);
 
 const recipeData = ref({
@@ -118,6 +119,7 @@ const recipeData = ref({
   rating: 1,
   image: "",
   description: "",
+  slug: "",
 });
 
 // Prevent negative duration
@@ -130,6 +132,14 @@ watch(
   }
 );
 
+// Utility to generate a slug
+const generateSlug = (title: string) => {
+  return slugify(title, {
+    lower: true, // Convert to lowercase
+    strict: true, // Remove special characters
+  });
+};
+
 const closeModal = () => {
   emit("close");
 };
@@ -139,6 +149,8 @@ const saveRecipe = () => {
     alert("Please fill in all required fields.");
     return;
   }
+  recipeData.value.slug = generateSlug(recipeData.value.title);
+
   emit("save", { ...recipeData.value }); // Emit data
 };
 </script>

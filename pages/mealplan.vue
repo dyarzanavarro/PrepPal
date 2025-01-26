@@ -50,7 +50,7 @@
             <div v-else>
               <button
                 @click="showModal('lunch')"
-                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-200 transition"
               >
                 Add Recipe
               </button>
@@ -97,7 +97,7 @@
             <div v-else>
               <button
                 @click="showModal('dinner')"
-                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-200 transition"
               >
                 Add Recipe
               </button>

@@ -37,7 +37,7 @@
     <div class="fixed bottom-4 right-4">
       <button
         @click="openModal"
-        class="bg-green-600 hover:bg-green-700 text-white font-bold text-3xl py-4 px-6 rounded-full shadow-lg"
+        class="bg-green-200 hover:bg-green-700 text-white font-bold text-3xl py-4 px-6 rounded-full shadow-lg"
       >
         +
       </button>
@@ -72,7 +72,7 @@
                 :class="[
                   'w-full px-4 py-2 rounded-lg text-center text-lg font-medium',
                   selectedSlot === 'lunch'
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-green-200 text-white'
                     : 'bg-gray-200 text-gray-700',
                 ]"
               >
@@ -83,7 +83,7 @@
                 :class="[
                   'w-full px-4 py-2 rounded-lg text-center text-lg font-medium',
                   selectedSlot === 'dinner'
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-green-200 text-white'
                     : 'bg-gray-200 text-gray-700',
                 ]"
               >

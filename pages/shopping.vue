@@ -12,7 +12,7 @@
       />
       <button
         @click="addShoppingItem"
-        class="p-2 bg-green-600 text-white rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+        class="p-2 bg-green-200 text-white rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         Add
       </button>

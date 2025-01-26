@@ -32,7 +32,7 @@ function toggleMobileMenu() {
 
         <!-- Hamburger Icon for Mobile -->
         <button
-          class="ml-auto lg:hidden text-2xl text-green-600 top-6 right-4"
+          class="ml-auto lg:hidden text-2xl text-green-200 top-6 right-4"
           @click="toggleMobileMenu"
           aria-label="Toggle Navigation"
         >
@@ -78,14 +78,14 @@ function toggleMobileMenu() {
         >
           <!-- Close Button -->
           <button
-            class="absolute top-6 right-4 text-3xl text-green-600"
+            class="absolute top-6 right-4 text-3xl text-green-200"
             @click="isMobileMenuOpen = false"
             aria-label="Close Navigation"
           >
             <font-awesome-icon icon="fa-times" />
           </button>
           <ul
-            class="flex flex-col items-center gap-6 text-6xl font-bold capitalize text-green-600"
+            class="flex flex-col items-center gap-6 text-6xl font-bold capitalize text-green-200"
           >
             <li>
               <nuxt-link to="/" @click="isMobileMenuOpen = false"

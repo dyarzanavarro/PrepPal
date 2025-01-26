@@ -10,7 +10,7 @@
         <h2 class="text-xl font-bold">Recipes of the Week</h2>
         <button
           @click="navigateToMealPlan"
-          class="text-green-600 text-lg hover:underline font-semibold"
+          class="text-green-200 text-lg hover:underline font-semibold"
         >
           See all
         </button>
@@ -73,7 +73,7 @@
         <h2 class="text-xl font-bold">Recommendation</h2>
         <button
           @click="fetchRecommendations"
-          class="text-green-600 text-lg hover:underline font-semibold"
+          class="text-green-200 text-lg hover:underline font-semibold"
         >
           See all
         </button>

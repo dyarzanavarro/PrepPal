@@ -1,3 +1,154 @@
+<template>
+  <div v-if="recipe" class="p-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+      <!-- Left Column: Image -->
+      <div>
+        <img
+          :src="recipe.image || 'https://via.placeholder.com/400x300'"
+          :alt="recipe.title"
+          class="rounded-lg shadow-md w-full object-cover"
+        />
+      </div>
+
+      <!-- Right Column: Recipe Details -->
+      <div>
+        <div class="mb-4">
+          <span
+            class="text-sm font-semibold uppercase tracking-wide text-green-500"
+            >{{ recipe.category }}</span
+          >
+          <h1 class="text-3xl font-bold text-gray-900 mt-2">
+            {{ recipe.title }}
+          </h1>
+          <p class="text-gray-600 mt-1">
+            {{ recipe.duration }} minutes | {{ recipe.rating }} ⭐
+          </p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-2 mb-4">
+          <button
+            v-if="!isEditMode"
+            @click="isEditMode = true"
+            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-200"
+          >
+            Edit
+          </button>
+          <button
+            v-else
+            @click="saveChanges"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Save
+          </button>
+          <button
+            v-if="isEditMode"
+            @click="isEditMode = false"
+            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+          <button
+            @click="deleteRecipe"
+            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </div>
+
+        <!-- Recipe Link -->
+        <div v-if="recipe.link" class="mt-4">
+          <a
+            :href="recipe.link"
+            target="_blank"
+            class="inline-block bg-green-500 hover:bg-green-200 text-white font-semibold py-2 px-4 rounded"
+          >
+            View Original Recipe
+          </a>
+        </div>
+        <!-- Description -->
+        <div class="mt-8">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Description</h2>
+          <p v-if="!isEditMode" class="text-gray-600">
+            {{ recipe.description || "No description provided." }}
+          </p>
+          <textarea
+            v-else
+            v-model="recipe.description"
+            class="w-full border border-gray-300 p-2 rounded mt-2"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredients and Method -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+      <!-- Ingredients -->
+      <div>
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Ingredients</h2>
+        <ul class="space-y-2">
+          <li
+            v-for="(ingredient, index) in recipe.ingredients || []"
+            :key="index"
+            class="flex justify-between"
+          >
+            <span>{{ ingredient }}</span>
+            <button
+              v-if="isEditMode"
+              @click="removeIngredient(index)"
+              class="text-red-500 hover:underline"
+            >
+              Remove
+            </button>
+          </li>
+        </ul>
+        <div v-if="isEditMode" class="mt-4">
+          <button
+            @click="addIngredient"
+            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-200"
+          >
+            Add Ingredient
+          </button>
+        </div>
+      </div>
+
+      <!-- Method -->
+      <div>
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Method</h2>
+        <ol class="list-decimal space-y-2 pl-6">
+          <li
+            v-for="(step, index) in recipe.method || []"
+            :key="index"
+            class="flex justify-between"
+          >
+            <span>{{ step }}</span>
+            <button
+              v-if="isEditMode"
+              @click="removeMethodStep(index)"
+              class="text-red-500 hover:underline"
+            >
+              Remove
+            </button>
+          </li>
+        </ol>
+        <div v-if="isEditMode" class="mt-4">
+          <button
+            @click="addMethodStep"
+            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-200"
+          >
+            Add Step
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-else>
+    <p class="text-center text-gray-500">Loading...</p>
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -21,9 +172,8 @@ const auth = getAuth();
 
 const recipe = ref(null);
 const isEditMode = ref(false);
-const userId = ref(null); // Store the current user's ID
+const userId = ref(null);
 
-// Fetch the logged-in user's ID
 onMounted(async () => {
   const currentUser = auth.currentUser;
   if (!currentUser) {
@@ -45,259 +195,53 @@ onMounted(async () => {
       console.log("No such recipe found!");
     }
   } catch (error) {
-    alert("Recipe not found. Redirecting to the recipes list.");
-    router.push("/recipes"); // Redirect to the recipes list
+    router.push("/recipes");
   }
 });
 
-// Save updated recipe to Firestore
 const saveChanges = async () => {
   if (recipe.value) {
-    try {
-      // Construct the updated recipe object without modifying the slug
-      const updatedRecipe = {
-        title: recipe.value.title || "",
-        image: recipe.value.image || "",
-        description: recipe.value.description || "",
-        ingredients: recipe.value.ingredients || [], // Ensure ingredients is always an array
-        link: recipe.value.link || "",
-        category: recipe.value.category || "",
-        duration: recipe.value.duration || 0,
-        rating: recipe.value.rating || 0,
-      };
+    const updatedRecipe = {
+      title: recipe.value.title || "",
+      image: recipe.value.image || "",
+      description: recipe.value.description || "",
+      ingredients: recipe.value.ingredients || [],
+      method: recipe.value.method || [],
+      link: recipe.value.link || "",
+      category: recipe.value.category || "",
+      duration: recipe.value.duration || 0,
+      rating: recipe.value.rating || 0,
+    };
 
-      const recipeDoc = doc(
-        db,
-        `users/${userId.value}/recipes`,
-        recipe.value.id
-      );
-
-      console.log("Saving to Firestore:", updatedRecipe);
-
-      await updateDoc(recipeDoc, updatedRecipe);
-      isEditMode.value = false;
-      console.log("Recipe updated successfully!");
-    } catch (error) {
-      console.error("Error updating recipe:", error);
-    }
-  } else {
-    console.error("No recipe found to save.");
+    const recipeDoc = doc(db, `users/${userId.value}/recipes`, recipe.value.id);
+    await updateDoc(recipeDoc, updatedRecipe);
+    isEditMode.value = false;
   }
 };
 
-// Add a new ingredient
 const addIngredient = () => {
   if (!recipe.value.ingredients) recipe.value.ingredients = [];
-  recipe.value.ingredients.push({ name: "", quantity: "" });
+  recipe.value.ingredients.push("");
 };
 
-// Remove an ingredient
 const removeIngredient = (index) => {
   recipe.value.ingredients.splice(index, 1);
 };
 
+const addMethodStep = () => {
+  if (!recipe.value.method) recipe.value.method = [];
+  recipe.value.method.push("");
+};
+
+const removeMethodStep = (index) => {
+  recipe.value.method.splice(index, 1);
+};
+
 const deleteRecipe = async () => {
   if (confirm("Are you sure you want to delete this recipe?")) {
-    try {
-      const recipeDoc = doc(
-        db,
-        `users/${userId.value}/recipes`,
-        recipe.value.id
-      );
-      await deleteDoc(recipeDoc);
-
-      alert("Recipe deleted successfully!");
-      router.push("/recipes"); // Redirect to the recipes list
-    } catch (error) {
-      console.error("Error deleting recipe:", error);
-      alert("Failed to delete the recipe.");
-    }
+    const recipeDoc = doc(db, `users/${userId.value}/recipes`, recipe.value.id);
+    await deleteDoc(recipeDoc);
+    router.push("/recipes");
   }
 };
 </script>
-
-<template>
-  <div v-if="recipe">
-    <!-- Background Image Section -->
-    <section class="relative h-screen w-full max-h-[20rem]">
-      <div class="absolute inset-0 z-10">
-        <img
-          v-if="recipe.image"
-          class="h-full w-full object-cover object-center"
-          :src="recipe.image"
-          :alt="recipe.title"
-        />
-        <div
-          v-else
-          class="h-full w-full flex items-center justify-center bg-gray-200 text-gray-500"
-        >
-          No Image Available
-        </div>
-      </div>
-
-      <!-- Bottom Sheet Overlay -->
-      <div class="absolute inset-0 z-20 flex items-end bg-black/30">
-        <!-- Bottom Sheet Container -->
-        <div
-          class="w-full bg-white rounded-t-3xl shadow-lg transition-transform transform"
-          :class="{ 'translate-y-full': !isOpen, 'translate-y-20': isOpen }"
-          style="height: 80vh"
-          @click.self="isOpen = !isOpen"
-        >
-          <!-- Pull Handle for Toggling -->
-          <div class="pt-4 text-center">
-            <span
-              class="block w-12 h-1 bg-gray-300 rounded-full mx-auto my-2 cursor-pointer"
-              @click="toggleSheet"
-            ></span>
-          </div>
-
-          <!-- Scrollable Content Section -->
-          <div class="overflow-y-auto h-[72vh] p-6 space-y-6">
-            <!-- Recipe Information -->
-            <div class="relative">
-              <span class="font-light text-sm text-accent-500 text-gray-500">
-                {{ recipe.category }}
-              </span>
-              <div class="flex items-center justify-between">
-                <h1 class="text-3xl font-medium text-gray-900">
-                  <span v-if="!isEditMode">{{ recipe.title }}</span>
-                  <input
-                    v-else
-                    v-model="recipe.title"
-                    class="border border-gray-300 p-2 rounded w-full"
-                  />
-                </h1>
-                <div class="flex gap-2">
-                  <button
-                    v-if="!isEditMode"
-                    @click="isEditMode = true"
-                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 ml-4"
-                  >
-                    Edit
-                  </button>
-
-                  <div v-else class="flex items-center gap-2 ml-4">
-                    <button
-                      @click="saveChanges"
-                      class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    >
-                      Save
-                    </button>
-                    <button
-                      @click="isEditMode = false"
-                      class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <button
-                    @click="deleteRecipe"
-                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              <p class="text-sm font-light text-gray-600">
-                {{ recipe.duration }} minutes
-              </p>
-              <p class="text-sm font-light text-gray-600">
-                {{ recipe.rating }} ⭐
-              </p>
-            </div>
-
-            <!-- Recipe Link (CTA) -->
-            <div>
-              <button
-                v-if="recipe.link"
-                type="button"
-                class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4 w-full mt-4"
-              >
-                <a
-                  :href="recipe.link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="block text-center"
-                >
-                  View Original Recipe
-                </a>
-              </button>
-            </div>
-
-            <!-- Edit Image URL -->
-            <div v-if="isEditMode">
-              <h2 class="text-lg font-semibold text-gray-800">Image URL</h2>
-              <input
-                v-model="recipe.image"
-                placeholder="Enter image URL"
-                class="w-full border border-gray-300 p-2 rounded mt-2"
-              />
-            </div>
-
-            <!-- Description -->
-            <div>
-              <h2 class="text-lg font-semibold text-gray-800">Description</h2>
-              <p v-if="!isEditMode" class="text-gray-600 mt-2">
-                {{ recipe.description || "No description provided." }}
-              </p>
-              <textarea
-                v-else
-                v-model="recipe.description"
-                class="w-full border border-gray-300 p-2 rounded mt-2"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <!-- Ingredients -->
-            <div>
-              <h2 class="text-lg font-semibold text-gray-800">Ingredients</h2>
-              <ul class="mt-2 space-y-2">
-                <li
-                  v-for="(ingredient, index) in recipe.ingredients || []"
-                  :key="index"
-                  class="flex items-center gap-4"
-                >
-                  <span v-if="!isEditMode">
-                    {{ ingredient.name }} - {{ ingredient.quantity }}
-                  </span>
-                  <div v-else class="flex gap-2">
-                    <input
-                      v-model="ingredient.name"
-                      placeholder="Ingredient"
-                      class="border border-gray-300 p-1 rounded w-full"
-                    />
-                    <input
-                      v-model="ingredient.quantity"
-                      placeholder="Quantity"
-                      class="border border-gray-300 p-1 rounded w-1/3"
-                    />
-                    <button
-                      @click="removeIngredient(index)"
-                      class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </li>
-              </ul>
-              <button
-                v-if="isEditMode"
-                @click="addIngredient"
-                class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              >
-                Add Ingredient
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Loading State -->
-  <div v-else>
-    <p>Loading...</p>
-  </div>
-</template>
