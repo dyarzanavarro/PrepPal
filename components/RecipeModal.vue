@@ -108,11 +108,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-
-// Define emits to handle close and save actions
 const emit = defineEmits(["close", "save"]);
 
-// Reactive state for form data
 const recipeData = ref({
   title: "",
   link: "",
@@ -123,7 +120,7 @@ const recipeData = ref({
   description: "",
 });
 
-// Watch duration to prevent negative values
+// Prevent negative duration
 watch(
   () => recipeData.value.duration,
   (newVal) => {
@@ -133,16 +130,15 @@ watch(
   }
 );
 
-// Handle image upload to Firebase Storage
-
-// Emit close event
 const closeModal = () => {
   emit("close");
 };
 
-// Emit save event with form data
 const saveRecipe = () => {
-  emit("save", recipeData.value);
+  if (!recipeData.value.title || !recipeData.value.category) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+  emit("save", { ...recipeData.value }); // Emit data
 };
 </script>
-

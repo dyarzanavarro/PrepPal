@@ -49,7 +49,6 @@
       @close="isModalOpen = false"
       @save="onSaveRecipe"
     />
-
     <!-- Bottom Drawer -->
     <div
       v-if="isDrawerOpen"
@@ -203,6 +202,27 @@ const fetchMealPlans = async () => {
     console.log("Calendar Attributes:", calendarAttributes.value);
   } catch (error) {
     console.error("Error fetching meal plans:", error);
+  }
+};
+
+// Save a recipe
+const onSaveRecipe = async (recipeData) => {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to save recipes.");
+    return;
+  }
+
+  try {
+    const userRecipesCollection = collection(db, `users/${user.uid}/recipes`);
+    await addDoc(userRecipesCollection, recipeData);
+
+    alert("Recipe saved successfully!");
+    fetchUserRecipes(); // Refresh recipes
+    isModalOpen.value = false; // Close modal
+  } catch (error) {
+    console.error("Error saving recipe:", error);
+    alert("Failed to save recipe.");
   }
 };
 
