@@ -12,7 +12,7 @@
       />
       <button
         @click="addShoppingItem"
-        class="p-2 bg-green-200 text-white rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+        class="p-2 bg-green-200 rounded-r-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         Add
       </button>
@@ -40,7 +40,7 @@
             <span>{{ item.title }}</span>
             <button
               @click="deleteShoppingItem(item.id)"
-              class="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+              class="p-2 bg-rose-300 rounded-md hover:bg-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-300"
             >
               Delete
             </button>
@@ -74,7 +74,7 @@
             <span>{{ item.title }}</span>
             <button
               @click="deleteShoppingItem(item.id)"
-              class="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+              class="p-2 bg-rose-300 rounded-md hover:bg-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-300"
             >
               Delete
             </button>

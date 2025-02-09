@@ -3,12 +3,21 @@
     <!-- Header -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
       <!-- Left Column: Image -->
-      <div>
+      <div class="relative">
         <img
           :src="recipe.image || 'https://via.placeholder.com/400x300'"
           :alt="recipe.title"
           class="rounded-lg shadow-md w-full object-cover"
         />
+        <div v-if="isEditMode" class="mt-2">
+          <label class="block text-gray-600">Image URL:</label>
+          <input
+            v-model="recipe.image"
+            type="text"
+            class="w-full p-2 border border-gray-300 rounded"
+            placeholder="Enter image URL"
+          />
+        </div>
       </div>
 
       <!-- Right Column: Recipe Details -->
@@ -16,14 +25,39 @@
         <div class="mb-4">
           <span
             class="text-sm font-semibold uppercase tracking-wide text-green-500"
-            >{{ recipe.category }}</span
           >
+            {{ recipe.category }}
+          </span>
           <h1 class="text-3xl font-bold text-gray-900 mt-2">
-            {{ recipe.title }}
+            <span v-if="!isEditMode">{{ recipe.title }}</span>
+            <input
+              v-else
+              v-model="recipe.title"
+              class="border border-gray-300 p-2 rounded w-full"
+            />
           </h1>
-          <p class="text-gray-600 mt-1">
-            {{ recipe.duration }} minutes | {{ recipe.rating }} ⭐
-          </p>
+
+          <div class="text-gray-600 mt-1">
+            <span v-if="!isEditMode">
+              {{ recipe.duration }} minutes | {{ recipe.rating }} ⭐</span
+            >
+            <div v-else class="flex gap-2">
+              <input
+                v-model="recipe.duration"
+                type="number"
+                class="border border-gray-300 p-2 rounded w-24"
+                placeholder="Duration"
+              />
+              <input
+                v-model="recipe.rating"
+                type="number"
+                min="1"
+                max="5"
+                class="border border-gray-300 p-2 rounded w-16"
+                placeholder="Rating"
+              />
+            </div>
+          </div>
         </div>
 
         <!-- Buttons -->
@@ -31,14 +65,14 @@
           <button
             v-if="!isEditMode"
             @click="isEditMode = true"
-            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-200"
+            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
           >
             Edit
           </button>
           <button
             v-else
             @click="saveChanges"
-            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
           >
             Save
           </button>
@@ -62,11 +96,12 @@
           <a
             :href="recipe.link"
             target="_blank"
-            class="inline-block bg-green-500 hover:bg-green-200 text-white font-semibold py-2 px-4 rounded"
+            class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
           >
             View Original Recipe
           </a>
         </div>
+
         <!-- Description -->
         <div class="mt-8">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Description</h2>
@@ -83,67 +118,38 @@
       </div>
     </div>
 
-    <!-- Ingredients and Method -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-      <!-- Ingredients -->
-      <div>
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Ingredients</h2>
-        <ul class="space-y-2">
-          <li
-            v-for="(ingredient, index) in recipe.ingredients || []"
-            :key="index"
-            class="flex justify-between"
-          >
-            <span>{{ ingredient }}</span>
-            <button
-              v-if="isEditMode"
-              @click="removeIngredient(index)"
-              class="text-red-500 hover:underline"
-            >
-              Remove
-            </button>
-          </li>
-        </ul>
-        <div v-if="isEditMode" class="mt-4">
-          <button
-            @click="addIngredient"
-            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-200"
-          >
-            Add Ingredient
-          </button>
-        </div>
-      </div>
+    <!-- Ingredients -->
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800">Ingredients</h2>
+      <p v-if="!isEditMode" class="text-gray-600 whitespace-pre-line">
+        {{ recipe.ingredients || "No ingredients provided." }}
+      </p>
+      <textarea
+        v-else
+        v-model="recipe.ingredients"
+        class="w-full border border-gray-300 p-2 rounded mt-2"
+        rows="5"
+        placeholder="Add ingredients (each on a new line)"
+      ></textarea>
+    </div>
 
-      <!-- Method -->
-      <div>
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Method</h2>
-        <ol class="list-decimal space-y-2 pl-6">
-          <li
-            v-for="(step, index) in recipe.method || []"
-            :key="index"
-            class="flex justify-between"
-          >
-            <span>{{ step }}</span>
-            <button
-              v-if="isEditMode"
-              @click="removeMethodStep(index)"
-              class="text-red-500 hover:underline"
-            >
-              Remove
-            </button>
-          </li>
-        </ol>
-        <div v-if="isEditMode" class="mt-4">
-          <button
-            @click="addMethodStep"
-            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-200"
-          >
-            Add Step
-          </button>
-        </div>
-      </div>
+    <!-- Method -->
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800">Method</h2>
+      <p v-if="!isEditMode" class="text-gray-600 whitespace-pre-line">
+        {{ recipe.method || "No method steps provided." }}
+      </p>
+      <textarea
+        v-else
+        v-model="recipe.method"
+        class="w-full border border-gray-300 p-2 rounded mt-2"
+        rows="5"
+        placeholder="Add method steps (each on a new line)"
+      ></textarea>
     </div>
   </div>
+
+  <!-- Loading State -->
   <div v-else>
     <p class="text-center text-gray-500">Loading...</p>
   </div>
@@ -203,10 +209,10 @@ const saveChanges = async () => {
   if (recipe.value) {
     const updatedRecipe = {
       title: recipe.value.title || "",
-      image: recipe.value.image || "",
+      image: recipe.value.image || "https://via.placeholder.com/400x300",
       description: recipe.value.description || "",
-      ingredients: recipe.value.ingredients || [],
-      method: recipe.value.method || [],
+      ingredients: recipe.value.ingredients || "",
+      method: recipe.value.method || "",
       link: recipe.value.link || "",
       category: recipe.value.category || "",
       duration: recipe.value.duration || 0,
@@ -217,24 +223,6 @@ const saveChanges = async () => {
     await updateDoc(recipeDoc, updatedRecipe);
     isEditMode.value = false;
   }
-};
-
-const addIngredient = () => {
-  if (!recipe.value.ingredients) recipe.value.ingredients = [];
-  recipe.value.ingredients.push("");
-};
-
-const removeIngredient = (index) => {
-  recipe.value.ingredients.splice(index, 1);
-};
-
-const addMethodStep = () => {
-  if (!recipe.value.method) recipe.value.method = [];
-  recipe.value.method.push("");
-};
-
-const removeMethodStep = (index) => {
-  recipe.value.method.splice(index, 1);
 };
 
 const deleteRecipe = async () => {

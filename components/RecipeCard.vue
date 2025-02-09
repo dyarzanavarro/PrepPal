@@ -46,7 +46,7 @@ const emit = defineEmits(["plan"]);
     <div class="flex justify-center px-4 py-3">
       <button
         @click="$emit('plan', recipe)"
-        class="bg-green-200 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+        class="bg-green-200 px-4 py-2 rounded-lg hover:bg-green-700"
       >
         Plan
       </button>

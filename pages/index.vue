@@ -10,7 +10,7 @@
         <h2 class="text-xl font-bold">Recipes of the Week</h2>
         <button
           @click="navigateToMealPlan"
-          class="text-green-200 text-lg hover:underline font-semibold"
+          class="text-green-600 text-lg hover:underline font-semibold"
         >
           See all
         </button>
@@ -24,7 +24,6 @@
           />
         </template>
         <template v-else>
-          <!-- Placeholder Card -->
           <div
             class="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-lg shadow-md"
           >
@@ -33,7 +32,7 @@
             </p>
             <button
               @click="navigateToMealPlan"
-              class="bg-green-200 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4"
+              class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md py-2 px-4"
             >
               Plan Your Meals
             </button>
@@ -42,38 +41,78 @@
       </div>
     </div>
 
-    <!-- Search Bar -->
+    <!-- Search & Filter Section -->
     <div class="mb-6 mt-8">
-      <h2 class="text-xl font-bold mb-3">Search all recipes</h2>
-      <input
-        v-model="searchQuery"
-        @input="filterRecipes"
-        type="text"
-        placeholder="Search any recipes..."
-        class="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-green-400"
-      />
-    </div>
-
-    <!-- Categories -->
-    <div class="mb-6">
-      <h2 class="text-xl font-bold mb-3">Categories</h2>
-      <div class="flex gap-4 overflow-x-auto">
-        <CategoryCard
-          v-for="(category, index) in categories"
-          :key="index"
-          :category="category"
-          @click="filterByCategory(category)"
+      <h2 class="text-xl font-bold mb-3">Search or Filter Recipes</h2>
+      <div class="relative">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search any recipes..."
+          class="w-full p-3 border border-gray-300 rounded-lg focus:ring focus:ring-green-400"
+          @input="updateFilteredRecipes"
         />
+        <div
+          v-if="filteredRecipes.length > 0 && searchQuery"
+          class="absolute bg-white border border-gray-300 mt-1 rounded-lg w-full shadow-md max-h-60 overflow-y-auto"
+        >
+          <ul>
+            <li
+              v-for="recipe in filteredRecipes"
+              :key="recipe.id"
+              class="p-2 hover:bg-gray-100 cursor-pointer"
+              @click="goToRecipe(recipe.slug)"
+            >
+              {{ recipe.title }}
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
-    <!-- Recommendation Section (Slider) -->
+    <!-- Categories as Filters -->
+    <div class="mb-6">
+      <h2 class="text-xl font-bold mb-3">Categories</h2>
+      <div class="flex gap-4 overflow-x-auto">
+        <button
+          v-for="category in categories"
+          :key="category.name"
+          @click="filterByCategory(category.name)"
+          class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-200 transition"
+        >
+          <span class="text-xl">{{ category.icon }}</span>
+          <span class="font-semibold">{{ category.name }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtered Recipes List -->
+    <div v-if="searchQuery || selectedCategory" class="mb-6">
+      <h2 class="text-xl font-bold mb-3">
+        Showing results for:
+        <span class="text-green-600">{{
+          searchQuery || selectedCategory
+        }}</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <RecipeCard
+          v-for="recipe in filteredRecipes"
+          :key="recipe.id"
+          :recipe="recipe"
+        />
+        <p v-if="filteredRecipes.length === 0" class="text-gray-500">
+          No recipes found.
+        </p>
+      </div>
+    </div>
+
+    <!-- Recommendation Section -->
     <div class="mb-6">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-xl font-bold">Recommendation</h2>
         <button
           @click="fetchRecommendations"
-          class="text-green-200 text-lg hover:underline font-semibold"
+          class="text-green-600 text-lg hover:underline font-semibold"
         >
           See all
         </button>
@@ -88,43 +127,40 @@
       </div>
     </div>
 
-    <!-- Action Button -->
+    <!-- Floating Add Recipe Button -->
     <div class="fixed bottom-4 right-4">
       <button
-        class="bg-blue-400 hover:bg-blue-200 text-white font-bold text-3xl p-5 rounded-full shadow-lg"
-        @click="onActionClick"
+        @click="openModal"
+        class="bg-green-600 hover:bg-green-700 text-white font-bold text-3xl py-4 px-6 rounded-full shadow-lg"
       >
         +
       </button>
     </div>
+
+    <!-- Recipe Modal -->
+    <recipe-modal
+      v-if="isModalOpen"
+      @close="isModalOpen = false"
+      @save="onSaveRecipe"
+    />
   </div>
 </template>
-
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useFirebaseAuth } from "vuefire";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { useRouter } from "vue-router";
 
-// Firebase and Router
 const db = getFirestore();
 const auth = useFirebaseAuth();
 const router = useRouter();
 
-// User display name
 const userDisplayName = computed(() => auth.currentUser?.displayName || "User");
 
-// Search state
 const searchQuery = ref("");
+const selectedCategory = ref("");
 
-// Categories
 const categories = [
   { name: "Breakfast", icon: "🍳" },
   { name: "Lunch", icon: "🍱" },
@@ -133,10 +169,10 @@ const categories = [
   { name: "Snacks", icon: "🍿" },
 ];
 
-// Recipe data
 const allRecipes = ref([]);
 const recommendedRecipes = ref([]);
 const todayMeals = ref([]);
+const filteredRecipes = ref([]);
 
 // Fetch all recipes
 const fetchRecipes = async () => {
@@ -148,10 +184,12 @@ const fetchRecipes = async () => {
 
   allRecipes.value = recipeDocs.docs.map((doc) => ({
     id: doc.id,
+    slug: doc.data().slug,
     ...doc.data(),
   }));
 
   fetchRecommendations();
+  updateFilteredRecipes();
 };
 
 // Fetch today's planned meals
@@ -159,49 +197,54 @@ const fetchTodayMeals = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const today = new Date().toISOString().split("T")[0];
   const mealPlansCollection = collection(db, `users/${user.uid}/mealPlans`);
-  const mealPlanQuery = query(
-    mealPlansCollection,
-    where("__name__", "==", today)
-  );
-  const mealPlanDocs = await getDocs(mealPlanQuery);
+  const mealPlanDocs = await getDocs(mealPlansCollection);
 
-  if (!mealPlanDocs.empty) {
-    const mealPlan = mealPlanDocs.docs[0].data();
-    todayMeals.value = [mealPlan.lunch, mealPlan.dinner].filter(Boolean);
-  }
+  todayMeals.value = mealPlanDocs.docs
+    .filter((doc) => doc.id === today)
+    .map((doc) => doc.data())
+    .flatMap((meal) => [meal.lunch, meal.dinner].filter(Boolean));
 };
 
 // Fetch recommendations
 const fetchRecommendations = () => {
-  // Randomly select 4 recipes
   recommendedRecipes.value = allRecipes.value
     .sort(() => 0.5 - Math.random())
     .slice(0, 4);
 };
 
-// Search and category filtering
-const filterRecipes = () => {
-  // This feature can filter recipes globally, or trigger a different logic
+// Update filtered recipes dynamically
+const updateFilteredRecipes = () => {
+  if (!searchQuery.value && !selectedCategory.value) {
+    filteredRecipes.value = [];
+    return;
+  }
+  filteredRecipes.value = allRecipes.value.filter(
+    (recipe) =>
+      recipe.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      recipe.category.toLowerCase() === selectedCategory.value.toLowerCase()
+  );
 };
 
+// Navigate to selected recipe
+const goToRecipe = (slug) => {
+  router.push(`/recipe/${slug}`);
+};
+
+// Filter by category
 const filterByCategory = (category) => {
-  searchQuery.value = category.name;
+  selectedCategory.value = category;
+  searchQuery.value = "";
+  updateFilteredRecipes();
 };
 
-// Navigate to meal plan page
-const navigateToMealPlan = () => {
-  router.push("/mealplan");
+// Open recipe modal
+const isModalOpen = ref(false);
+const openModal = () => {
+  isModalOpen.value = true;
 };
 
-// Action button handler
-const onActionClick = () => {
-  console.log("Central Action Button Clicked!");
-  // Logic for the action button can go here
-};
-
-// Initial fetch on mount
 onMounted(() => {
   fetchRecipes();
   fetchTodayMeals();

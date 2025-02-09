@@ -1,165 +1,167 @@
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
-    <h1 class="text-3xl font-bold mb-6">Meal Planner</h1>
+  <div>
+    <div class="p-6 bg-gray-50">
+      <h1 class="text-3xl font-bold mb-6">Meal Planner</h1>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Daily Meal Plan -->
-      <div>
-        <h2 class="text-2xl font-bold mb-4 text-gray-700">
-          Plan for {{ selectedDay?.date || "Select a Day" }}
-        </h2>
-        <div class="flex flex-col gap-6">
-          <!-- Lunch Slot -->
-          <div
-            class="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition"
-          >
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Lunch</h3>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Daily Meal Plan -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4 text-gray-700">
+            Plan for {{ selectedDay?.date || "Select a Day" }}
+          </h2>
+          <div class="flex flex-col gap-6">
+            <!-- Lunch Slot -->
             <div
-              v-if="mealPlan[selectedDay?.date]?.lunch"
-              class="flex items-center gap-4"
+              class="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition"
             >
-              <img
-                :src="mealPlan[selectedDay.date].lunch.image"
-                alt="Recipe Image"
-                class="w-16 h-16 rounded-lg object-cover border border-gray-200"
-              />
-              <div>
-                <p class="font-semibold text-gray-700">
-                  {{ mealPlan[selectedDay.date].lunch.title }}
-                </p>
+              <h3 class="text-lg font-semibold text-gray-600 mb-2">Lunch</h3>
+              <div
+                v-if="mealPlan[selectedDay?.date]?.lunch"
+                class="flex items-center gap-4"
+              >
+                <img
+                  :src="mealPlan[selectedDay.date].lunch.image"
+                  alt="Recipe Image"
+                  class="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                />
+                <div>
+                  <p class="font-semibold text-gray-700">
+                    {{ mealPlan[selectedDay.date].lunch.title }}
+                  </p>
 
-                <div class="flex items-center gap-4">
-                  <nuxt-link
-                    :to="`/recipe/${mealPlan[selectedDay.date].lunch.title
-                      .replace(/\s+/g, '-')
-                      .toLowerCase()}`"
-                    class="text-gray-400 text-sm hover:underline"
-                  >
-                    Go to Recipe
-                  </nuxt-link>
+                  <div class="flex items-center gap-4">
+                    <nuxt-link
+                      :to="`/recipe/${mealPlan[selectedDay.date].lunch.title
+                        .replace(/\s+/g, '-')
+                        .toLowerCase()}`"
+                      class="text-gray-400 text-sm hover:underline"
+                    >
+                      Go to Recipe
+                    </nuxt-link>
 
-                  <button
-                    @click="removeMeal('lunch')"
-                    class="text-red-500 text-sm hover:underline"
-                  >
-                    Remove
-                  </button>
+                    <button
+                      @click="removeMeal('lunch')"
+                      class="text-rose-300 text-sm hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div v-else>
-              <button
-                @click="showModal('lunch')"
-                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-200 transition"
-              >
-                Add Recipe
-              </button>
-            </div>
-          </div>
-
-          <!-- Dinner Slot -->
-          <div
-            class="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition"
-          >
-            <h3 class="text-lg font-semibold text-gray-600 mb-2">Dinner</h3>
-            <div
-              v-if="mealPlan[selectedDay?.date]?.dinner"
-              class="flex items-center gap-4"
-            >
-              <img
-                :src="mealPlan[selectedDay.date].dinner.image"
-                alt="Recipe Image"
-                class="w-16 h-16 rounded-lg object-cover border border-gray-200"
-              />
-              <div>
-                <p class="font-semibold text-gray-700">
-                  {{ mealPlan[selectedDay.date].dinner.title }}
-                </p>
-                <div class="flex items-center gap-4">
-                  <nuxt-link
-                    :to="`/recipe/${mealPlan[selectedDay.date].dinner.title
-                      .replace(/\s+/g, '-')
-                      .toLowerCase()}`"
-                    class="text-gray-400 text-sm hover:underline"
-                  >
-                    Go to Recipe
-                  </nuxt-link>
-
-                  <button
-                    @click="removeMeal('dinner')"
-                    class="text-red-500 text-sm hover:underline"
-                  >
-                    Remove
-                  </button>
-                </div>
+              <div v-else>
+                <button
+                  @click="showModal('lunch')"
+                  class="green-200 px-4 py-2 rounded-md hover:bg-green-200 transition"
+                >
+                  Add Recipe
+                </button>
               </div>
             </div>
-            <div v-else>
-              <button
-                @click="showModal('dinner')"
-                class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-200 transition"
+
+            <!-- Dinner Slot -->
+            <div
+              class="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition"
+            >
+              <h3 class="text-lg font-semibold text-gray-600 mb-2">Dinner</h3>
+              <div
+                v-if="mealPlan[selectedDay?.date]?.dinner"
+                class="flex items-center gap-4"
               >
-                Add Recipe
-              </button>
+                <img
+                  :src="mealPlan[selectedDay.date].dinner.image"
+                  alt="Recipe Image"
+                  class="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                />
+                <div>
+                  <p class="font-semibold text-gray-700">
+                    {{ mealPlan[selectedDay.date].dinner.title }}
+                  </p>
+                  <div class="flex items-center gap-4">
+                    <nuxt-link
+                      :to="`/recipe/${mealPlan[selectedDay.date].dinner.title
+                        .replace(/\s+/g, '-')
+                        .toLowerCase()}`"
+                      class="text-gray-400 text-sm hover:underline"
+                    >
+                      Go to Recipe
+                    </nuxt-link>
+
+                    <button
+                      @click="removeMeal('dinner')"
+                      class="text-rose-300 text-sm hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <button
+                  @click="showModal('dinner')"
+                  class="green-200 px-4 py-2 rounded-md hover:bg-green-200 transition"
+                >
+                  Add Recipe
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Calendar Component -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4 text-gray-700">Calendar</h2>
+          <v-calendar
+            is-expanded
+            :attributes="calendarAttributes"
+            @dayclick="selectDay"
+            :color="selectedColor"
+            class="bg-white rounded-lg shadow-lg hover:shadow-xl transition"
+          ></v-calendar>
+        </div>
       </div>
 
-      <!-- Calendar Component -->
-      <div>
-        <h2 class="text-2xl font-bold mb-4 text-gray-700">Calendar</h2>
-        <v-calendar
-          is-expanded
-          :attributes="calendarAttributes"
-          @dayclick="selectDay"
-          :color="selectedColor"
-          class="bg-white rounded-lg shadow-lg hover:shadow-xl transition"
-        ></v-calendar>
-      </div>
-    </div>
-
-    <!-- Recipe Selection Modal -->
-    <div
-      v-if="isModalOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-    >
+      <!-- Recipe Selection Modal -->
       <div
-        class="bg-white p-6 rounded-lg shadow-lg max-w-md overflow-y-auto w-full h-[80vh]"
+        v-if="isModalOpen"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
       >
-        <h3 class="text-xl font-bold mb-4 text-gray-700">Select a Recipe</h3>
-
-        <!-- Search Input -->
-        <input
-          v-model="searchTerm"
-          placeholder="Search for a recipe"
-          class="w-full p-2 border border-gray-300 rounded mb-4"
-        />
-
-        <!-- Recipe List -->
-        <ul v-if="filteredRecipes.length > 0" class="space-y-4">
-          <li
-            v-for="recipe in filteredRecipes"
-            :key="recipe.id"
-            @click="selectRecipe(recipe)"
-            class="flex items-center gap-4 p-4 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
-          >
-            <img
-              :src="recipe.image"
-              alt="Recipe Image"
-              class="w-12 h-12 rounded object-cover border border-gray-200"
-            />
-            <span class="font-medium text-gray-700">{{ recipe.title }}</span>
-          </li>
-        </ul>
-
-        <p v-else class="text-gray-500">No recipes match your search.</p>
-        <button
-          @click="closeModal"
-          class="mt-6 text-black hover:underline text-sm"
+        <div
+          class="bg-white p-6 rounded-lg shadow-lg max-w-md overflow-y-auto w-full h-[80vh]"
         >
-          Close
-        </button>
+          <h3 class="text-xl font-bold mb-4 text-gray-700">Select a Recipe</h3>
+
+          <!-- Search Input -->
+          <input
+            v-model="searchTerm"
+            placeholder="Search for a recipe"
+            class="w-full p-2 border border-gray-300 rounded mb-4"
+          />
+
+          <!-- Recipe List -->
+          <ul v-if="filteredRecipes.length > 0" class="space-y-4">
+            <li
+              v-for="recipe in filteredRecipes"
+              :key="recipe.id"
+              @click="selectRecipe(recipe)"
+              class="flex items-center gap-4 p-4 bg-gray-100 rounded cursor-pointer hover:bg-gray-200"
+            >
+              <img
+                :src="recipe.image"
+                alt="Recipe Image"
+                class="w-12 h-12 rounded object-cover border border-gray-200"
+              />
+              <span class="font-medium text-gray-700">{{ recipe.title }}</span>
+            </li>
+          </ul>
+
+          <p v-else class="text-gray-500">No recipes match your search.</p>
+          <button
+            @click="closeModal"
+            class="mt-6 text-black hover:underline text-sm"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   </div>

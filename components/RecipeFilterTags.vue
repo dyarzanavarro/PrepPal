@@ -7,7 +7,7 @@
       @click.prevent="selectTag(tag)"
       class="py-1 px-2 rounded-lg text-sm cursor-pointer"
       :class="{
-        'bg-green-700 text-white': tag === selectedTag,
+        'bg-green-700  ': tag === selectedTag,
         'bg-green-200 hover:bg-green-300': tag !== selectedTag,
       }"
     >

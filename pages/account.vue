@@ -21,7 +21,7 @@
       <div class="mt-8">
         <button
           @click="logout"
-          class="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md py-3 px-6 shadow-md"
+          class="bg-rose-300 hover:bg-rose-500 font-semibold rounded-md py-3 px-6 shadow-md"
         >
           Log Out
         </button>

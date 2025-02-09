@@ -14,7 +14,7 @@
         <div class="space-y-4">
           <button
             @click="loginWithGoogle"
-            class="bg-green-200 hover:bg-green-700 text-white font-semibold rounded-lg py-3 px-6 flex items-center justify-center gap-2 shadow-md w-full md:w-auto"
+            class="bg-green-200 hover:bg-green-700 font-semibold rounded-lg py-3 px-6 flex items-center justify-center gap-2 shadow-md w-full md:w-auto"
           >
             <font-awesome-icon icon="fa-brands fa-google" class="text-lg" />
             Login with Google

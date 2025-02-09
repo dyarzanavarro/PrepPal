@@ -97,7 +97,7 @@
 
         <button
           type="submit"
-          class="w-full text-white py-2 rounded bg-green-200 hover:bg-green-700 transition"
+          class="w-full py-2 rounded bg-green-200 hover:bg-green-700 transition"
         >
           Save Recipe
         </button>
